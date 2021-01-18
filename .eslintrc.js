@@ -37,5 +37,9 @@ module.exports = {
     ],
     'require-jsdoc': 'off',
     'camelcase': 'off',
+    'linebreak-style': [
+      'error',
+      'unix',
+    ],
   },
 };
