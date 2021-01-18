@@ -26,7 +26,7 @@ describe('detectLocalGit', () => {
     should.exist(results);
     (results).should.deepEqual({
       git_commit: '0000000000000000ffffffffffffffffffffffff',
-      git_branch: 'master'
+      git_branch: 'master',
     });
   });
 });
@@ -54,8 +54,9 @@ function _cleanTemporaryGitDir() {
 }
 
 function _deleteFolderRecursive(dir) {
-  if (!dir.includes(path.normalize('node-coveralls/test'))) {
-    throw new Error(`Tried to clean a temp git directory that did not match path: ${path.normalize('node-coveralls/test')}`);
+  if (!dir.includes(path.normalize('coveralls-next/test'))) {
+    throw new Error(`Tried to clean a temp git directory that did not match path: ${
+      path.normalize('coveralls-next/test')}`);
   }
 
   if (fs.existsSync(dir)) {

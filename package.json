@@ -1,5 +1,5 @@
 {
-  "name": "coveralls",
+  "name": "coveralls-next",
   "description": "takes json-cov output into stdin and POSTs to coveralls.io",
   "version": "4.0.0",
   "keywords": [
@@ -10,12 +10,12 @@
   "license": "BSD-2-Clause",
   "repository": {
     "type": "git",
-    "url": "git://github.com/nickmerwin/node-coveralls.git"
+    "url": "git://github.com/jtwebman/coveralls-next.git"
   },
   "bugs": {
-    "url": "https://github.com/nickmerwin/node-coveralls/issues"
+    "url": "https://github.com/jtwebman/coveralls-next/issues"
   },
-  "homepage": "https://github.com/nickmerwin/node-coveralls#readme",
+  "homepage": "https://github.com/jtwebman/coveralls-next#readme",
   "maintainers": [
     "Nick Merwin <nick@coveralls.io> (https://coveralls.io)"
   ],
@@ -39,7 +39,7 @@
     "test": "test"
   },
   "scripts": {
-    "lint": "xo",
+    "lint": "eslint .",
     "mocha": "_mocha -b -R spec",
     "test-cov": "nyc npm run mocha",
     "test-coveralls": "nyc npm run mocha && shx cat ./coverage/lcov.info | node ./bin/coveralls.js --verbose",
@@ -47,18 +47,21 @@
   },
   "dependencies": {
     "got": "11.8.1",
-    "js-yaml": "3.14.1",
+    "js-yaml": "4.0.0",
     "lcov-parse": "1.0.0",
     "log-driver": "1.2.7",
     "minimist": "1.2.5"
   },
   "devDependencies": {
+    "eslint": "^7.18.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "mocha": "8.2.1",
     "nyc": "15.1.0",
+    "prettier": "^2.2.1",
     "should": "13.2.3",
     "shx": "0.3.3",
-    "sinon": "9.2.2",
-    "xo": "0.36.1"
+    "sinon": "9.2.3"
   },
   "engines": {
     "node": ">=10.19.0"

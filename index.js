@@ -7,12 +7,12 @@ const minimist = require('minimist');
 module.exports.options = minimist(process.argv.slice(2), {
   boolean: [
     'verbose',
-    'stdout'
+    'stdout',
   ],
   alias: {
     'v': 'verbose',
-    's': 'stdout'
-  }
+    's': 'stdout',
+  },
 });
 
 module.exports.convertLcovToCoveralls = require('./lib/convertLcovToCoveralls');

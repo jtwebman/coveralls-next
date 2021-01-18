@@ -6,11 +6,11 @@ const should = require('should');
 const yaml = require('js-yaml');
 const index = require('..');
 
-const { getOptions, getBaseOptions } = index;
+const {getOptions, getBaseOptions} = index;
 
 describe('getBaseOptions', () => {
   beforeEach(() => {
-    process.env = { PATH: process.env.PATH };
+    process.env = {PATH: process.env.PATH};
   });
   it('should set service_job_id if it exists', done => {
     testServiceJobId(getBaseOptions, done);
@@ -73,7 +73,7 @@ describe('getBaseOptions', () => {
 
 describe('getOptions', () => {
   beforeEach(() => {
-    process.env = { PATH: process.env.PATH };
+    process.env = {PATH: process.env.PATH};
   });
   it('should require a callback', done => {
     ((() => {
@@ -183,7 +183,7 @@ describe('getOptions', () => {
     testCodefresh(getOptions, done);
   });
   it('should override set options with user options', done => {
-    const userOptions = { service_name: 'OVERRIDDEN_SERVICE_NAME' };
+    const userOptions = {service_name: 'OVERRIDDEN_SERVICE_NAME'};
     process.env.COVERALLS_SERVICE_NAME = 'SERVICE_NAME';
     getOptions((err, options) => {
       should.not.exist(err);
@@ -212,7 +212,7 @@ const testGitHash = (sut, done) => {
 };
 
 const testGitDetachedHeadDetection = (sut, done) => {
-  const localGit = ensureLocalGitContext({ detached: true });
+  const localGit = ensureLocalGitContext({detached: true});
   sut((err, options) => {
     should.not.exist(err);
     options.git.head.id.should.equal(localGit.id);
@@ -257,7 +257,7 @@ const testGitBranchDetection = (sut, done) => {
 };
 
 const testNoLocalGit = (sut, done) => {
-  const localGit = ensureLocalGitContext({ noGit: true });
+  const localGit = ensureLocalGitContext({noGit: true});
   sut((err, options) => {
     should.not.exist(err);
     options.should.not.have.property('git');
@@ -301,7 +301,7 @@ const testRepoTokenDetection = (sut, done) => {
   let synthetic = false;
 
   if (fs.existsSync(file)) {
-    const coverallsYmlDoc = yaml.safeLoad(fs.readFileSync(file, 'utf8'));
+    const coverallsYmlDoc = yaml.load(fs.readFileSync(file, 'utf8'));
     token = coverallsYmlDoc.repo_token;
     if (coverallsYmlDoc.service_name) {
       service_name = coverallsYmlDoc.service_name;
@@ -315,6 +315,7 @@ const testRepoTokenDetection = (sut, done) => {
 
   sut((err, options) => {
     should.not.exist(err);
+    console.log(JSON.stringify(options, null, 2));
     options.repo_token.should.equal(token);
 
     if (service_name) {
@@ -399,10 +400,10 @@ const testJenkins = (sut, done) => {
       author_email: '',
       committer_name: 'Unknown Committer',
       committer_email: '',
-      message: 'Unknown Commit Message'
+      message: 'Unknown Commit Message',
     },
     branch: 'master',
-    remotes: []
+    remotes: [],
   };
 
   sut((err, options) => {
@@ -429,10 +430,10 @@ const testCircleCi = (sut, done) => {
       author_email: '',
       committer_name: 'Unknown Committer',
       committer_email: '',
-      message: 'Unknown Commit Message'
+      message: 'Unknown Commit Message',
     },
     branch: 'master',
-    remotes: []
+    remotes: [],
   };
 
   sut((err, options) => {
@@ -462,10 +463,10 @@ const testCodeship = (sut, done) => {
       author_email: '',
       committer_name: 'John Doe',
       committer_email: 'jd@example.com',
-      message: 'adadadadadadadadadad'
+      message: 'adadadadadadadadadad',
     },
     branch: 'master',
-    remotes: []
+    remotes: [],
   };
 
   sut((err, options) => {
@@ -494,10 +495,10 @@ const testDrone = (sut, done) => {
       author_email: '',
       committer_name: 'john doe',
       committer_email: 'john@doe.com',
-      message: 'msgmsgmsg'
+      message: 'msgmsgmsg',
     },
     branch: 'master',
-    remotes: []
+    remotes: [],
   };
 
   sut((err, options) => {
@@ -522,10 +523,10 @@ const testWercker = (sut, done) => {
       author_email: '',
       committer_name: 'Unknown Committer',
       committer_email: '',
-      message: 'Unknown Commit Message'
+      message: 'Unknown Commit Message',
     },
     branch: 'master',
-    remotes: []
+    remotes: [],
   };
 
   sut((err, options) => {
@@ -552,10 +553,10 @@ const testGitlab = (sut, done) => {
       author_email: '',
       committer_name: 'Unknown Committer',
       committer_email: '',
-      message: 'Unknown Commit Message'
+      message: 'Unknown Commit Message',
     },
     branch: 'feature',
-    remotes: []
+    remotes: [],
   };
 
   sut((err, options) => {
@@ -582,10 +583,10 @@ const testAppVeyor = (sut, done) => {
       author_email: '',
       committer_name: 'Unknown Committer',
       committer_email: '',
-      message: 'Unknown Commit Message'
+      message: 'Unknown Commit Message',
     },
     branch: 'feature',
-    remotes: []
+    remotes: [],
   };
 
   sut((err, options) => {
@@ -610,10 +611,10 @@ const testSurf = (sut, done) => {
       author_email: '',
       committer_name: 'Unknown Committer',
       committer_email: '',
-      message: 'Unknown Commit Message'
+      message: 'Unknown Commit Message',
     },
     branch: 'feature',
-    remotes: []
+    remotes: [],
   };
 
   sut((err, options) => {
@@ -640,10 +641,10 @@ const testBuildkite = (sut, done) => {
       author_email: '',
       committer_name: 'john doe',
       committer_email: 'john@doe.com',
-      message: 'msgmsgmsg'
+      message: 'msgmsgmsg',
     },
     branch: 'feature',
-    remotes: []
+    remotes: [],
   };
 
   sut((err, options) => {
@@ -667,10 +668,10 @@ const testSemaphore = (sut, done) => {
       author_email: '',
       committer_name: 'Unknown Committer',
       committer_email: '',
-      message: 'Unknown Commit Message'
+      message: 'Unknown Commit Message',
     },
     branch: 'master',
-    remotes: []
+    remotes: [],
   };
 
   sut((err, options) => {
@@ -696,10 +697,10 @@ const testAzurePipelines = (sut, done) => {
       author_email: '',
       committer_name: 'Unknown Committer',
       committer_email: '',
-      message: 'Unknown Commit Message'
+      message: 'Unknown Commit Message',
     },
     branch: 'hotfix',
-    remotes: []
+    remotes: [],
   };
 
   sut((err, options) => {
@@ -727,10 +728,10 @@ const testCodefresh = (sut, done) => {
       author_email: '',
       committer_name: 'john doe',
       committer_email: '',
-      message: 'msgmsgmsg'
+      message: 'msgmsgmsg',
     },
     branch: 'hotfix',
-    remotes: []
+    remotes: [],
   };
 
   sut((err, options) => {
@@ -772,12 +773,12 @@ function ensureLocalGitContext(options) {
     const gitBranch = path.join('.git', 'refs', 'heads', branch);
     fs.mkdirSync('.git');
     if (options.detached) {
-      fs.writeFileSync(gitHead, id, { encoding: 'utf8' });
+      fs.writeFileSync(gitHead, id, {encoding: 'utf8'});
     } else {
       fs.mkdirSync(path.join('.git', 'refs'));
       fs.mkdirSync(path.join('.git', 'refs', 'heads'));
-      fs.writeFileSync(gitHead, `ref: refs/heads/${branch}`, { encoding: 'utf8' });
-      fs.writeFileSync(gitBranch, id, { encoding: 'utf8' });
+      fs.writeFileSync(gitHead, `ref: refs/heads/${branch}`, {encoding: 'utf8'});
+      fs.writeFileSync(gitBranch, id, {encoding: 'utf8'});
     }
 
     wrapUp = () => {
@@ -817,6 +818,6 @@ function ensureLocalGitContext(options) {
   return {
     id,
     branch,
-    wrapUp
+    wrapUp,
   };
 }

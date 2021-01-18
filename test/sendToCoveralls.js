@@ -6,7 +6,7 @@ const sinon = require('sinon');
 const logDriver = require('log-driver');
 const index = require('..');
 
-logDriver({ level: false });
+logDriver({level: false});
 
 describe('sendToCoveralls', () => {
   let realCoverallsHost;
@@ -25,11 +25,11 @@ describe('sendToCoveralls', () => {
 
   it('passes on the correct params to got.post', done => {
     const spy = sinon.stub(got, 'post').resolves('response');
-    const object = { 'some': 'obj' };
+    const object = {'some': 'obj'};
 
     index.sendToCoveralls(object, (err, response) => {
       try {
-        spy.calledOnceWith('https://coveralls.io/api/v1/jobs', { json: object })
+        spy.calledOnceWith('https://coveralls.io/api/v1/jobs', {json: object})
           .should.be.true('GOT post not called with the correct values');
         should(err).be.null();
         response.should.equal('response');
@@ -43,11 +43,11 @@ describe('sendToCoveralls', () => {
   it('when got rejects pass the error to the callback', done => {
     const error = new Error('test error');
     const spy = sinon.stub(got, 'post').rejects(error);
-    const object = { 'some': 'obj' };
+    const object = {'some': 'obj'};
 
     index.sendToCoveralls(object, (err, response) => {
       try {
-        spy.calledOnceWith('https://coveralls.io/api/v1/jobs', { json: object })
+        spy.calledOnceWith('https://coveralls.io/api/v1/jobs', {json: object})
           .should.be.true('GOT post not called with the correct values');
         err.should.equal(error);
         should(response).be.undefined();
@@ -61,11 +61,11 @@ describe('sendToCoveralls', () => {
   it('allows sending to enterprise url', done => {
     process.env.COVERALLS_ENDPOINT = 'https://coveralls-ubuntu.domain.com';
     const spy = sinon.stub(got, 'post').resolves('response');
-    const object = { 'some': 'obj' };
+    const object = {'some': 'obj'};
 
     index.sendToCoveralls(object, (err, response) => {
       try {
-        spy.calledOnceWith('https://coveralls-ubuntu.domain.com/api/v1/jobs', { json: object })
+        spy.calledOnceWith('https://coveralls-ubuntu.domain.com/api/v1/jobs', {json: object})
           .should.be.true('GOT post not called with the correct values');
         should(err).be.null();
         response.should.equal('response');
@@ -77,7 +77,7 @@ describe('sendToCoveralls', () => {
   });
 
   it('writes output to stdout when --stdout is passed', done => {
-    const object = { 'some': 'obj' };
+    const object = {'some': 'obj'};
 
     // set up mock process.stdout.write temporarily
     const origStdoutWrite = process.stdout.write;

@@ -1,6 +1,8 @@
-# node-coveralls
+# coveralls next
 
 [![Build Status][ci-image]][ci-url] [![Coverage Status][coveralls-image]][coveralls-url]
+
+This is just a fork of [coveralls](https://github.com/nickmerwin/node-coveralls) with updated dependencies and replace [request](https://github.com/request/request) which is deprecated with [GOT](https://www.npmjs.com/package/got). I also replace [xo](https://github.com/xojs/xo) with eslint and prettier with google settings as it also used a bunch of deprecated dependencies.
 
 [Coveralls.io](https://coveralls.io/) support for Node.js. Get the great coverage reporting of coveralls.io and add a cool coverage button (like the one above) to your README.
 
@@ -21,7 +23,7 @@
 Add the latest version of `coveralls` to your package.json:
 
 ```shell
-npm install coveralls --save-dev
+npm install coveralls-next --save-dev
 ```
 
 If you're using mocha, add `mocha-lcov-reporter` to your package.json:
@@ -121,7 +123,7 @@ istanbul cover jasmine-node --captureExceptions spec/ && cat ./coverage/lcov.inf
 Depend on nodeunit, jscoverage, and coveralls:
 
 ```sh
-npm install nodeunit jscoverage coveralls --save-dev
+npm install nodeunit jscoverage coveralls-next --save-dev
 ```
 
 Add a coveralls script to "scripts" in your `package.json`:
@@ -200,8 +202,8 @@ I generally don't accept pull requests that are untested or break the build, bec
 I also don't care for "soft-versioning" or "optimistic versioning" (dependencies that have ^, x, > in them, or anything other than numbers and dots). There have been too many problems with bad semantic versioning in dependencies, and I'd rather have a solid library than a bleeding-edge one.
 
 
-[ci-image]: https://github.com/nickmerwin/node-coveralls/workflows/Tests/badge.svg
-[ci-url]: https://github.com/nickmerwin/node-coveralls/actions?workflow=Tests
+[ci-image]: https://github.com/jtwebman/coveralls-next/workflows/Tests/badge.svg
+[ci-url]: https://github.com/jtwebman/coveralls-next/actions?workflow=Tests
 
-[coveralls-image]: https://coveralls.io/repos/nickmerwin/node-coveralls/badge.svg?branch=master&service=github
-[coveralls-url]: https://coveralls.io/github/nickmerwin/node-coveralls?branch=master
+[coveralls-image]: https://coveralls.io/repos/jtwebman/coveralls-next/badge.svg?branch=master&service=github
+[coveralls-url]: https://coveralls.io/github/jtwebman/coveralls-next?branch=master
