@@ -1,4 +1,4 @@
-# coveralls next
+# Coveralls Next
 
 [![Build Status][ci-image]][ci-url] [![Coverage Status][coveralls-image]][coveralls-url]
 

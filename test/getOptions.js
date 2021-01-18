@@ -315,7 +315,6 @@ const testRepoTokenDetection = (sut, done) => {
 
   sut((err, options) => {
     should.not.exist(err);
-    console.log(JSON.stringify(options, null, 2));
     options.repo_token.should.equal(token);
 
     if (service_name) {
