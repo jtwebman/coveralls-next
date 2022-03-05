@@ -2,7 +2,7 @@
 
 [![Build Status][ci-image]][ci-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
-This is just a fork of [coveralls](https://github.com/nickmerwin/node-coveralls) with updated dependencies and replace [request](https://github.com/request/request) which is deprecated with [GOT](https://www.npmjs.com/package/got). I also replace [xo](https://github.com/xojs/xo) with eslint and prettier with google settings as it also used a bunch of deprecated dependencies.
+This is just a fork of [coveralls](https://github.com/nickmerwin/node-coveralls) with updated dependencies and replace [request](https://github.com/request/request) which is deprecated with [form-data](https://www.npmjs.com/package/form-data) which was the library request was using for form posts. I also replace [xo](https://github.com/xojs/xo) with eslint and prettier with google settings as it also used a bunch of deprecated dependencies.
 
 [Coveralls.io](https://coveralls.io/) support for Node.js. Get the great coverage reporting of coveralls.io and add a cool coverage button (like the one above) to your README.
 
@@ -55,11 +55,15 @@ There are optional environment variables for other build systems as well:
 
 ### GitHub Actions CI
 
+If you use this then there is no reason to have coveralls or coveralls-next library in your package as it has it's own npm version in the step. This doesn't use this library but the original coveralls npm package which will work just the same.
+
 If you are using GitHub Actions CI, you should look into [coverallsapp/github-action](https://github.com/coverallsapp/github-action).
 
 Parallel runs example [workflow.yml](https://github.com/coverallsapp/coveralls-node-demo/blob/master/.github/workflows/workflow.yml)
 
 ### [CircleCI Orb](https://circleci.com/)
+
+If you use this then there is no reason to have coveralls or coveralls-next library in your package as it has it's own npm version in the step. This doesn't use this library but the original coveralls npm package which will work just the same.
 
 Here's our Orb for quick integration: [coveralls/coveralls](https://circleci.com/orbs/registry/orb/coveralls/coveralls)
 

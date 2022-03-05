@@ -1,12 +1,23 @@
 'use strict';
 
 const should = require('should');
-const got = require('got');
 const sinon = require('sinon');
 const logDriver = require('log-driver');
+const FormData = require('form-data');
 const index = require('..');
 
 logDriver({level: false});
+
+function getTestResponse(value) {
+  return {
+    on: (key, fn) => {
+      if (key === 'data') {
+        return fn(value);
+      }
+      fn();
+    },
+  };
+}
 
 describe('sendToCoveralls', () => {
   let realCoverallsHost;
@@ -23,16 +34,18 @@ describe('sendToCoveralls', () => {
     }
   });
 
-  it('passes on the correct params to got.post', done => {
-    const spy = sinon.stub(got, 'post').resolves('response');
+  it('passes on the correct params to form-data', done => {
     const object = {'some': 'obj'};
-
+    const spyAppend = sinon.stub(FormData.prototype, 'append');
+    const spySubmit = sinon.stub(FormData.prototype, 'submit').yields(null, getTestResponse('response'));
     index.sendToCoveralls(object, (err, response) => {
       try {
-        spy.calledOnceWith('https://coveralls.io/api/v1/jobs', {json: object})
-          .should.be.true('GOT post not called with the correct values');
+        spyAppend.calledOnceWith('json', JSON.stringify(object))
+          .should.be.true('form data append not called with the correct values');
+        spySubmit.calledOnceWith('https://coveralls.io/api/v1/jobs', sinon.match.func)
+          .should.be.true('form data submit not called with the correct values');
         should(err).be.null();
-        response.should.equal('response');
+        response.body.should.equal('response');
         done();
       } catch (error) {
         done(error);
@@ -40,15 +53,13 @@ describe('sendToCoveralls', () => {
     });
   });
 
-  it('when got rejects pass the error to the callback', done => {
+  it('when request rejects pass the error to the callback', done => {
     const error = new Error('test error');
-    const spy = sinon.stub(got, 'post').rejects(error);
+    sinon.stub(FormData.prototype, 'submit').yields(error);
     const object = {'some': 'obj'};
 
     index.sendToCoveralls(object, (err, response) => {
       try {
-        spy.calledOnceWith('https://coveralls.io/api/v1/jobs', {json: object})
-          .should.be.true('GOT post not called with the correct values');
         err.should.equal(error);
         should(response).be.undefined();
         done();
@@ -60,15 +71,15 @@ describe('sendToCoveralls', () => {
 
   it('allows sending to enterprise url', done => {
     process.env.COVERALLS_ENDPOINT = 'https://coveralls-ubuntu.domain.com';
-    const spy = sinon.stub(got, 'post').resolves('response');
+    const spySubmit = sinon.stub(FormData.prototype, 'submit').yields(null, getTestResponse('response'));
     const object = {'some': 'obj'};
 
     index.sendToCoveralls(object, (err, response) => {
       try {
-        spy.calledOnceWith('https://coveralls-ubuntu.domain.com/api/v1/jobs', {json: object})
-          .should.be.true('GOT post not called with the correct values');
+        spySubmit.calledOnceWith('https://coveralls-ubuntu.domain.com/api/v1/jobs', sinon.match.func)
+          .should.be.true('form data submit not called with the correct values');
         should(err).be.null();
-        response.should.equal('response');
+        response.body.should.equal('response');
         done();
       } catch (error) {
         done(error);

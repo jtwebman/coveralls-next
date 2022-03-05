@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [10, 12, 14, 15]
+        node: [12, 14, 16, 17]
         os: [ubuntu-latest, windows-latest]
 
     steps:
@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set Node.js version
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
 
@@ -32,19 +32,30 @@ jobs:
       - name: Run tests
         run: npm run test-cov
 
+      - name: test token
+        run: echo "${{ secrets.COVERALLS_REPO_TOKEN }}"
+    
       - name: Coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          flag-name: ${{matrix.os}}-node-${{ matrix.node }}
-          parallel: true
+        run: cat ./coverage/lcov.info | node ./bin/coveralls.js
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          COVERALLS_SERVICE_NAME: CI-pipeline
+          COVERALLS_SERVICE_JOB_ID: ${{github.run_id}}
+          COVERALLS_SERVICE_JOB_NUMBER: ${{github.run_number}}
+          COVERALLS_FLAG_NAME: ${{matrix.os}}-node-${{ matrix.node }}
+          COVERALLS_PARALLEL: true 
+          NODE_COVERALLS_DEBUG: 1
 
   finish:
     needs: test
     runs-on: ubuntu-latest
     steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+
       - name: Coveralls Finished
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          parallel-finished: true
+        run: |
+          curl -kv -d 'payload[build_num]=${{github.run_id}}&payload[status]=done' https://coveralls.io/webhook?repo_token=${COVERALLS_REPO_TOKEN}
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+  
