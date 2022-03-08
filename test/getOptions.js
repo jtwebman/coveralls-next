@@ -418,7 +418,7 @@ const testCircleCi = (sut, done) => {
   process.env.CIRCLECI = true;
   process.env.CIRCLE_BRANCH = 'master';
   process.env.CIRCLE_WORKFLOW_ID = '1';
-  process.env.CIRCLE_BUILD_NUM = '2';
+  process.env.CIRCLE_BUILD_NUM = '1';
   process.env.CIRCLE_SHA1 = 'e3e3e3e3e3e3e3e3e';
   process.env.CI_PULL_REQUEST = 'http://github.com/node-coveralls/pull/3';
 
