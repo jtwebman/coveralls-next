@@ -50,7 +50,7 @@
     "js-yaml": "4.1.0",
     "lcov-parse": "1.0.0",
     "log-driver": "1.2.7",
-    "minimist": "1.2.5"
+    "minimist": "1.2.6"
   },
   "devDependencies": {
     "eslint": "8.10.0",
