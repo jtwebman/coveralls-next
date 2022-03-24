@@ -438,7 +438,7 @@ const testCircleCi = (sut, done) => {
   sut((err, options) => {
     should.not.exist(err);
     options.service_name.should.equal('circleci');
-    options.service_number.should.equal('1');
+    options.service_number.should.equal('2');
     options.service_job_number.should.equal('2');
     options.service_pull_request.should.equal('3');
     options.git.should.eql(git);
