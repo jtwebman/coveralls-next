@@ -1,17 +1,17 @@
-"use strict";
+'use strict';
 
-const should = require("should");
-const sinon = require("sinon");
-const logDriver = require("log-driver");
-const FormData = require("form-data");
-const index = require("..");
+const should = require('should');
+const sinon = require('sinon');
+const logDriver = require('log-driver');
+const FormData = require('form-data');
+const index = require('..');
 
 logDriver({ level: false });
 
 function getTestResponse(value) {
   return {
     on: (key, fn) => {
-      if (key === "data") {
+      if (key === 'data') {
         return fn(value);
       }
       fn();
@@ -19,7 +19,7 @@ function getTestResponse(value) {
   };
 }
 
-describe("sendToCoveralls", () => {
+describe('sendToCoveralls', () => {
   let realCoverallsHost;
   beforeEach(() => {
     realCoverallsHost = process.env.COVERALLS_ENDPOINT;
@@ -34,26 +34,26 @@ describe("sendToCoveralls", () => {
     }
   });
 
-  it("passes on the correct params to form-data", done => {
-    const object = { some: "obj" };
-    const spyAppend = sinon.stub(FormData.prototype, "append");
+  it('passes on the correct params to form-data', done => {
+    const object = { some: 'obj' };
+    const spyAppend = sinon.stub(FormData.prototype, 'append');
     const spySubmit = sinon
-      .stub(FormData.prototype, "submit")
-      .yields(null, getTestResponse("response"));
+      .stub(FormData.prototype, 'submit')
+      .yields(null, getTestResponse('response'));
     index.sendToCoveralls(object, (err, response) => {
       try {
         spyAppend
-          .calledOnceWith("json", JSON.stringify(object))
+          .calledOnceWith('json', JSON.stringify(object))
           .should.be.true(
-            "form data append not called with the correct values"
+            'form data append not called with the correct values'
           );
         spySubmit
-          .calledOnceWith("https://coveralls.io/api/v1/jobs", sinon.match.func)
+          .calledOnceWith('https://coveralls.io/api/v1/jobs', sinon.match.func)
           .should.be.true(
-            "form data submit not called with the correct values"
+            'form data submit not called with the correct values'
           );
         should(err).be.null();
-        response.body.should.equal("response");
+        response.body.should.equal('response');
         done();
       } catch (error) {
         done(error);
@@ -61,10 +61,10 @@ describe("sendToCoveralls", () => {
     });
   });
 
-  it("when request rejects pass the error to the callback", done => {
-    const error = new Error("test error");
-    sinon.stub(FormData.prototype, "submit").yields(error);
-    const object = { some: "obj" };
+  it('when request rejects pass the error to the callback', done => {
+    const error = new Error('test error');
+    sinon.stub(FormData.prototype, 'submit').yields(error);
+    const object = { some: 'obj' };
 
     index.sendToCoveralls(object, (err, response) => {
       try {
@@ -77,25 +77,25 @@ describe("sendToCoveralls", () => {
     });
   });
 
-  it("allows sending to enterprise url", done => {
-    process.env.COVERALLS_ENDPOINT = "https://coveralls-ubuntu.domain.com";
+  it('allows sending to enterprise url', done => {
+    process.env.COVERALLS_ENDPOINT = 'https://coveralls-ubuntu.domain.com';
     const spySubmit = sinon
-      .stub(FormData.prototype, "submit")
-      .yields(null, getTestResponse("response"));
-    const object = { some: "obj" };
+      .stub(FormData.prototype, 'submit')
+      .yields(null, getTestResponse('response'));
+    const object = { some: 'obj' };
 
     index.sendToCoveralls(object, (err, response) => {
       try {
         spySubmit
           .calledOnceWith(
-            "https://coveralls-ubuntu.domain.com/api/v1/jobs",
+            'https://coveralls-ubuntu.domain.com/api/v1/jobs',
             sinon.match.func
           )
           .should.be.true(
-            "form data submit not called with the correct values"
+            'form data submit not called with the correct values'
           );
         should(err).be.null();
-        response.body.should.equal("response");
+        response.body.should.equal('response');
         done();
       } catch (error) {
         done(error);
@@ -103,8 +103,8 @@ describe("sendToCoveralls", () => {
     });
   });
 
-  it("writes output to stdout when --stdout is passed", done => {
-    const object = { some: "obj" };
+  it('writes output to stdout when --stdout is passed', done => {
+    const object = { some: 'obj' };
 
     // set up mock process.stdout.write temporarily
     const origStdoutWrite = process.stdout.write;

@@ -1,16 +1,16 @@
-"use strict";
+'use strict';
 
-const fs = require("fs");
-const path = require("path");
-const should = require("should");
+const fs = require('fs');
+const path = require('path');
+const should = require('should');
 
-const detectLocalGit = require("../lib/detectLocalGit");
+const detectLocalGit = require('../lib/detectLocalGit');
 
 const ORIGINAL_CWD = process.cwd();
 const TEST_DIR = path.resolve(__dirname);
-const TEMP_GIT_DIR = path.join(TEST_DIR, ".git");
+const TEMP_GIT_DIR = path.join(TEST_DIR, '.git');
 
-describe("detectLocalGit", () => {
+describe('detectLocalGit', () => {
   before(() => {
     _makeTemporaryGitDir();
     process.chdir(TEST_DIR);
@@ -21,12 +21,12 @@ describe("detectLocalGit", () => {
     process.chdir(ORIGINAL_CWD);
   });
 
-  it("should get commit hash from packed-refs when refs/heads/master does not exist", () => {
+  it('should get commit hash from packed-refs when refs/heads/master does not exist', () => {
     const results = detectLocalGit();
     should.exist(results);
     results.should.deepEqual({
-      git_commit: "0000000000000000ffffffffffffffffffffffff",
-      git_branch: "master",
+      git_commit: '0000000000000000ffffffffffffffffffffffff',
+      git_branch: 'master',
     });
   });
 });
@@ -38,17 +38,17 @@ function _makeTemporaryGitDir() {
 
   fs.mkdirSync(dir);
 
-  const HEAD = path.join(dir, "HEAD");
-  const packedRefs = path.join(dir, "packed-refs");
+  const HEAD = path.join(dir, 'HEAD');
+  const packedRefs = path.join(dir, 'packed-refs');
 
-  fs.writeFileSync(HEAD, "ref: refs/heads/master");
+  fs.writeFileSync(HEAD, 'ref: refs/heads/master');
   fs.writeFileSync(
     packedRefs,
-    "" +
-      "# pack-refs with: peeled fully-peeled\n" +
-      "0000000000000000000000000000000000000000 refs/heads/other/ref\n" +
-      "0000000000000000ffffffffffffffffffffffff refs/heads/master\n" +
-      "ffffffffffffffffffffffffffffffffffffffff refs/remotes/origin/other\n"
+    '' +
+      '# pack-refs with: peeled fully-peeled\n' +
+      '0000000000000000000000000000000000000000 refs/heads/other/ref\n' +
+      '0000000000000000ffffffffffffffffffffffff refs/heads/master\n' +
+      'ffffffffffffffffffffffffffffffffffffffff refs/remotes/origin/other\n'
   );
 }
 
@@ -57,10 +57,10 @@ function _cleanTemporaryGitDir() {
 }
 
 function _deleteFolderRecursive(dir) {
-  if (!dir.includes(path.normalize("coveralls-next/test"))) {
+  if (!dir.includes(path.normalize('coveralls-next/test'))) {
     throw new Error(
       `Tried to clean a temp git directory that did not match path: ${path.normalize(
-        "coveralls-next/test"
+        'coveralls-next/test'
       )}`
     );
   }
