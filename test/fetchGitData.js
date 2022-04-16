@@ -2,11 +2,11 @@
 
 const should = require('should');
 const fetchGitData = require('../lib/fetchGitData');
-const {getOptions} = require('..');
+const { getOptions } = require('..');
 
 describe('fetchGitData', () => {
   beforeEach(() => {
-    process.env = {PATH: process.env.PATH};
+    process.env = { PATH: process.env.PATH };
   });
   it('should throw an error when no data is passed', () => {
     fetchGitData.should.throw(/fetchGitData requires a callback/);
@@ -18,159 +18,182 @@ describe('fetchGitData', () => {
     });
   });
   it('should throw an error if no head is provided', done => {
-    fetchGitData({
-    }, err => {
+    fetchGitData({}, err => {
       err.should.match(/You must provide the head/);
       done();
     });
   });
   it('should throw an error if no head.id is provided', done => {
-    fetchGitData({
-      head: {},
-    }, err => {
-      err.should.match(/You must provide the head.id/);
-      done();
-    });
+    fetchGitData(
+      {
+        head: {},
+      },
+      err => {
+        err.should.match(/You must provide the head.id/);
+        done();
+      }
+    );
   });
   it('should return default values', done => {
-    fetchGitData({
-      head: {
-        id: 'COMMIT_HASH',
-      },
-    }, (err, options) => {
-      should.not.exist(err);
-      options.should.eql({
-        'head': {
-          'id': 'COMMIT_HASH',
-          'author_name': 'Unknown Author',
-          'author_email': '',
-          'committer_name': 'Unknown Committer',
-          'committer_email': '',
-          'message': 'Unknown Commit Message',
+    fetchGitData(
+      {
+        head: {
+          id: 'COMMIT_HASH',
         },
-        'branch': '',
-        'remotes': [],
-      });
-      done();
-    });
+      },
+      (err, options) => {
+        should.not.exist(err);
+        options.should.eql({
+          head: {
+            id: 'COMMIT_HASH',
+            author_name: 'Unknown Author',
+            author_email: '',
+            committer_name: 'Unknown Committer',
+            committer_email: '',
+            message: 'Unknown Commit Message',
+          },
+          branch: '',
+          remotes: [],
+        });
+        done();
+      }
+    );
   });
   it('should override default values', done => {
-    fetchGitData({
-      'head': {
-        'id': 'COMMIT_HASH',
-        'author_name': 'MY AUTHOR',
-        'author_email': '',
-        'committer_name': 'MY COMMITTER',
-        'committer_email': '',
-        'message': 'MY COMMIT MESSAGE',
-      },
-      'branch': 'TEST',
-      'remotes': [
-        {
-          'name': 'TEST',
-          'url': 'test-url',
+    fetchGitData(
+      {
+        head: {
+          id: 'COMMIT_HASH',
+          author_name: 'MY AUTHOR',
+          author_email: '',
+          committer_name: 'MY COMMITTER',
+          committer_email: '',
+          message: 'MY COMMIT MESSAGE',
         },
-      ],
-    }, (err, options) => {
-      should.not.exist(err);
-      options.should.eql({
-        'head': {
-          'id': 'COMMIT_HASH',
-          'author_name': 'MY AUTHOR',
-          'author_email': '',
-          'committer_name': 'MY COMMITTER',
-          'committer_email': '',
-          'message': 'MY COMMIT MESSAGE',
-        },
-        'branch': 'TEST',
-        'remotes': [
+        branch: 'TEST',
+        remotes: [
           {
-            'name': 'TEST',
-            'url': 'test-url',
+            name: 'TEST',
+            url: 'test-url',
           },
         ],
-      });
-      done();
-    });
+      },
+      (err, options) => {
+        should.not.exist(err);
+        options.should.eql({
+          head: {
+            id: 'COMMIT_HASH',
+            author_name: 'MY AUTHOR',
+            author_email: '',
+            committer_name: 'MY COMMITTER',
+            committer_email: '',
+            message: 'MY COMMIT MESSAGE',
+          },
+          branch: 'TEST',
+          remotes: [
+            {
+              name: 'TEST',
+              url: 'test-url',
+            },
+          ],
+        });
+        done();
+      }
+    );
   });
   it('should convert git.branch to a string', done => {
-    fetchGitData({
-      'head': {
-        'id': 'COMMIT_HASH',
-      },
-      'branch': {
-        'covert': 'to a string',
-      },
-    }, (err, string) => {
-      should.not.exist(err);
-      string.branch.should.be.String();
-      fetchGitData({
-        'head': {
-          'id': 'COMMIT_HASH',
+    fetchGitData(
+      {
+        head: {
+          id: 'COMMIT_HASH',
         },
-        'branch': ['convert', 'to', 'a', 'string'],
-      }, (err, string) => {
+        branch: {
+          covert: 'to a string',
+        },
+      },
+      (err, string) => {
         should.not.exist(err);
         string.branch.should.be.String();
-        done();
-      });
-    });
+        fetchGitData(
+          {
+            head: {
+              id: 'COMMIT_HASH',
+            },
+            branch: ['convert', 'to', 'a', 'string'],
+          },
+          (err, string) => {
+            should.not.exist(err);
+            string.branch.should.be.String();
+            done();
+          }
+        );
+      }
+    );
   });
   it('should convert git.remotes to an array', done => {
-    fetchGitData({
-      'head': {
-        'id': 'COMMIT_HASH',
+    fetchGitData(
+      {
+        head: {
+          id: 'COMMIT_HASH',
+        },
+        remotes: 'convert from string to an array',
       },
-      'remotes': 'convert from string to an array',
-    }, (err, array) => {
-      should.not.exist(err);
-      array.remotes.should.be.instanceof(Array);
-      fetchGitData({
-        'head': {
-          'id': 'COMMIT_HASH',
-        },
-        'remotes': {
-          'convert': 'from object to an array',
-        },
-      }, (err, array) => {
+      (err, array) => {
         should.not.exist(err);
         array.remotes.should.be.instanceof(Array);
-        done();
-      });
-    });
+        fetchGitData(
+          {
+            head: {
+              id: 'COMMIT_HASH',
+            },
+            remotes: {
+              convert: 'from object to an array',
+            },
+          },
+          (err, array) => {
+            should.not.exist(err);
+            array.remotes.should.be.instanceof(Array);
+            done();
+          }
+        );
+      }
+    );
   });
   it('should save passed remotes', done => {
-    fetchGitData({
-      'head': {
-        'id': 'COMMIT_HASH',
-      },
-      'remotes': [
-        {
-          'name': 'test',
-          'url': 'https://my.test.url',
+    fetchGitData(
+      {
+        head: {
+          id: 'COMMIT_HASH',
         },
-      ],
-    }, (err, options) => {
-      should.not.exist(err);
-      options.should.eql({
-        'head': {
-          'id': 'COMMIT_HASH',
-          'author_name': 'Unknown Author',
-          'author_email': '',
-          'committer_name': 'Unknown Committer',
-          'committer_email': '',
-          'message': 'Unknown Commit Message',
-        },
-        'branch': '',
-        'remotes': [
+        remotes: [
           {
-            'name': 'test',
-            'url': 'https://my.test.url',
+            name: 'test',
+            url: 'https://my.test.url',
           },
         ],
-      });
-      done();
-    });
+      },
+      (err, options) => {
+        should.not.exist(err);
+        options.should.eql({
+          head: {
+            id: 'COMMIT_HASH',
+            author_name: 'Unknown Author',
+            author_email: '',
+            committer_name: 'Unknown Committer',
+            committer_email: '',
+            message: 'Unknown Commit Message',
+          },
+          branch: '',
+          remotes: [
+            {
+              name: 'test',
+              url: 'https://my.test.url',
+            },
+          ],
+        });
+        done();
+      }
+    );
   });
   it('should execute git commands when a valid commit hash is given', done => {
     process.env.COVERALLS_GIT_COMMIT = 'HEAD';

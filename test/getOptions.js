@@ -6,11 +6,11 @@ const should = require('should');
 const yaml = require('js-yaml');
 const index = require('..');
 
-const {getOptions, getBaseOptions} = index;
+const { getOptions, getBaseOptions } = index;
 
 describe('getBaseOptions', () => {
   beforeEach(() => {
-    process.env = {PATH: process.env.PATH};
+    process.env = { PATH: process.env.PATH };
   });
   it('should set service_job_id if it exists', done => {
     testServiceJobId(getBaseOptions, done);
@@ -73,12 +73,12 @@ describe('getBaseOptions', () => {
 
 describe('getOptions', () => {
   beforeEach(() => {
-    process.env = {PATH: process.env.PATH};
+    process.env = { PATH: process.env.PATH };
   });
   it('should require a callback', done => {
-    ((() => {
+    (() => {
       getOptions();
-    })).should.throw();
+    }).should.throw();
     done();
   });
   it('should get a filepath if there is one', done => {
@@ -183,7 +183,7 @@ describe('getOptions', () => {
     testCodefresh(getOptions, done);
   });
   it('should override set options with user options', done => {
-    const userOptions = {service_name: 'OVERRIDDEN_SERVICE_NAME'};
+    const userOptions = { service_name: 'OVERRIDDEN_SERVICE_NAME' };
     process.env.COVERALLS_SERVICE_NAME = 'SERVICE_NAME';
     getOptions((err, options) => {
       should.not.exist(err);
@@ -212,7 +212,7 @@ const testGitHash = (sut, done) => {
 };
 
 const testGitDetachedHeadDetection = (sut, done) => {
-  const localGit = ensureLocalGitContext({detached: true});
+  const localGit = ensureLocalGitContext({ detached: true });
   sut((err, options) => {
     should.not.exist(err);
     options.git.head.id.should.equal(localGit.id);
@@ -257,7 +257,7 @@ const testGitBranchDetection = (sut, done) => {
 };
 
 const testNoLocalGit = (sut, done) => {
-  const localGit = ensureLocalGitContext({noGit: true});
+  const localGit = ensureLocalGitContext({ noGit: true });
   sut((err, options) => {
     should.not.exist(err);
     options.should.not.have.property('git');
@@ -309,7 +309,10 @@ const testRepoTokenDetection = (sut, done) => {
   } else {
     token = 'REPO_TOKEN';
     service_name = 'travis-pro';
-    fs.writeFileSync(file, `repo_token: ${token}\nservice_name: ${service_name}`);
+    fs.writeFileSync(
+      file,
+      `repo_token: ${token}\nservice_name: ${service_name}`
+    );
     synthetic = true;
   }
 
@@ -772,12 +775,14 @@ function ensureLocalGitContext(options) {
     const gitBranch = path.join('.git', 'refs', 'heads', branch);
     fs.mkdirSync('.git');
     if (options.detached) {
-      fs.writeFileSync(gitHead, id, {encoding: 'utf8'});
+      fs.writeFileSync(gitHead, id, { encoding: 'utf8' });
     } else {
       fs.mkdirSync(path.join('.git', 'refs'));
       fs.mkdirSync(path.join('.git', 'refs', 'heads'));
-      fs.writeFileSync(gitHead, `ref: refs/heads/${branch}`, {encoding: 'utf8'});
-      fs.writeFileSync(gitBranch, id, {encoding: 'utf8'});
+      fs.writeFileSync(gitHead, `ref: refs/heads/${branch}`, {
+        encoding: 'utf8',
+      });
+      fs.writeFileSync(gitBranch, id, { encoding: 'utf8' });
     }
 
     wrapUp = () => {
@@ -802,7 +807,9 @@ function ensureLocalGitContext(options) {
     if (!b) {
       id = content;
     } else {
-      id = fs.readFileSync(path.join(gitDir, 'refs', 'heads', b), 'utf8').trim();
+      id = fs
+        .readFileSync(path.join(gitDir, 'refs', 'heads', b), 'utf8')
+        .trim();
       fs.writeFileSync(gitHead, id, 'utf8');
       wrapUp = () => {
         fs.writeFileSync(gitHead, content, 'utf8');
@@ -811,7 +818,11 @@ function ensureLocalGitContext(options) {
   } else {
     content = fs.readFileSync(path.join(gitDir, 'HEAD'), 'utf8').trim();
     branch = (content.match(/^ref: refs\/heads\/(\S+)$/) || [])[1];
-    id = branch ? fs.readFileSync(path.join(gitDir, 'refs', 'heads', branch), 'utf8').trim() : content;
+    id = branch
+      ? fs
+        .readFileSync(path.join(gitDir, 'refs', 'heads', branch), 'utf8')
+        .trim()
+      : content;
   }
 
   return {

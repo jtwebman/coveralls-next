@@ -24,7 +24,7 @@ describe('detectLocalGit', () => {
   it('should get commit hash from packed-refs when refs/heads/master does not exist', () => {
     const results = detectLocalGit();
     should.exist(results);
-    (results).should.deepEqual({
+    results.should.deepEqual({
       git_commit: '0000000000000000ffffffffffffffffffffffff',
       git_branch: 'master',
     });
@@ -42,11 +42,14 @@ function _makeTemporaryGitDir() {
   const packedRefs = path.join(dir, 'packed-refs');
 
   fs.writeFileSync(HEAD, 'ref: refs/heads/master');
-  fs.writeFileSync(packedRefs, '' +
-'# pack-refs with: peeled fully-peeled\n' +
-'0000000000000000000000000000000000000000 refs/heads/other/ref\n' +
-'0000000000000000ffffffffffffffffffffffff refs/heads/master\n' +
-'ffffffffffffffffffffffffffffffffffffffff refs/remotes/origin/other\n');
+  fs.writeFileSync(
+    packedRefs,
+    '' +
+      '# pack-refs with: peeled fully-peeled\n' +
+      '0000000000000000000000000000000000000000 refs/heads/other/ref\n' +
+      '0000000000000000ffffffffffffffffffffffff refs/heads/master\n' +
+      'ffffffffffffffffffffffffffffffffffffffff refs/remotes/origin/other\n'
+  );
 }
 
 function _cleanTemporaryGitDir() {
@@ -55,16 +58,21 @@ function _cleanTemporaryGitDir() {
 
 function _deleteFolderRecursive(dir) {
   if (!dir.includes(path.normalize('coveralls-next/test'))) {
-    throw new Error(`Tried to clean a temp git directory that did not match path: ${
-      path.normalize('coveralls-next/test')}`);
+    throw new Error(
+      `Tried to clean a temp git directory that did not match path: ${path.normalize(
+        'coveralls-next/test'
+      )}`
+    );
   }
 
   if (fs.existsSync(dir)) {
     fs.readdirSync(dir).forEach(file => {
       const curPath = path.join(dir, file);
-      if (fs.lstatSync(curPath).isDirectory()) { // recurse
+      if (fs.lstatSync(curPath).isDirectory()) {
+        // recurse
         _deleteFolderRecursive(curPath);
-      } else { // delete file
+      } else {
+        // delete file
         fs.unlinkSync(curPath);
       }
     });

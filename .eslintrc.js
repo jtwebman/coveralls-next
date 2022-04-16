@@ -5,9 +5,7 @@ module.exports = {
     node: true,
     mocha: true,
   },
-  extends: [
-    'google',
-  ],
+  extends: ['google', 'prettier'],
   parserOptions: {
     ecmaVersion: 9,
     sourceType: 'script',
@@ -16,27 +14,19 @@ module.exports = {
     },
   },
   rules: {
-    'strict': [
-      'error',
-      'global',
-    ],
-    'commaDangle': 'off',
-    'arrow-parens': [
-      'error',
-      'as-needed',
-    ],
+    strict: ['error', 'global'],
+    commaDangle: 'off',
+    'arrow-parens': ['error', 'as-needed'],
     'max-len': [
       'error',
       {
         code: 120,
       },
     ],
-    'indent': [
-      'error',
-      2,
-    ],
+    indent: ['error', 2],
     'require-jsdoc': 'off',
-    'camelcase': 'off',
+    camelcase: 'off',
     'linebreak-style': 'off',
+    quotes: ['error', 'single']
   },
 };

@@ -4,9 +4,9 @@ const fs = require('fs');
 const path = require('path');
 const should = require('should');
 const logDriver = require('log-driver');
-const {convertLcovToCoveralls, getOptions} = require('..');
+const { convertLcovToCoveralls, getOptions } = require('..');
 
-logDriver({level: false});
+logDriver({ level: false });
 
 describe('convertLcovToCoveralls', () => {
   it('should convert a simple lcov file', done => {
@@ -14,7 +14,7 @@ describe('convertLcovToCoveralls', () => {
     const lcovpath = path.join(__dirname, './fixtures/onefile.lcov');
     const input = fs.readFileSync(lcovpath, 'utf8');
     const libpath = path.join(__dirname, './fixtures/lib');
-    convertLcovToCoveralls(input, {filepath: libpath}, (err, output) => {
+    convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
       should.not.exist(err);
       output.source_files[0].name.should.equal('index.js');
       output.source_files[0].source.split('\n').length.should.equal(179);
@@ -64,7 +64,7 @@ describe('convertLcovToCoveralls', () => {
     const lcovpath = path.join(__dirname, './fixtures/onefile.lcov');
     const input = fs.readFileSync(lcovpath, 'utf8');
     const libpath = 'test/fixtures/lib';
-    convertLcovToCoveralls(input, {filepath: libpath}, (err, output) => {
+    convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
       should.not.exist(err);
       output.source_files[0].name.should.equal('index.js');
       output.source_files[0].source.split('\n').length.should.equal(179);
@@ -91,12 +91,14 @@ describe('convertLcovToCoveralls', () => {
     const originalExistsSync = fs.existsSync;
     fs.existsSync = () => true;
 
-    convertLcovToCoveralls(input, {filepath: libpath}, (err, output) => {
+    convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
       fs.readFileSync = originalReadFileSync;
       fs.existsSync = originalExistsSync;
 
       should.not.exist(err);
-      output.source_files[0].name.should.equal(path.posix.join('svgo', 'config.js'));
+      output.source_files[0].name.should.equal(
+        path.posix.join('svgo', 'config.js')
+      );
       done();
     });
   });
@@ -120,12 +122,14 @@ describe('convertLcovToCoveralls', () => {
     const originalExistsSync = fs.existsSync;
     fs.existsSync = () => true;
 
-    convertLcovToCoveralls(input, {filepath: libpath}, (err, output) => {
+    convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
       fs.readFileSync = originalReadFileSync;
       fs.existsSync = originalExistsSync;
 
       should.not.exist(err);
-      output.source_files[0].branches.slice(0, 8).should.eql([18, 1, 0, 85, 18, 1, 1, 2]);
+      output.source_files[0].branches
+        .slice(0, 8)
+        .should.eql([18, 1, 0, 85, 18, 1, 1, 2]);
       done();
     });
   });
@@ -149,7 +153,7 @@ describe('convertLcovToCoveralls', () => {
     const originalExistsSync = fs.existsSync;
     fs.existsSync = () => false;
 
-    convertLcovToCoveralls(input, {filepath: libpath}, (err, output) => {
+    convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
       fs.readFileSync = originalReadFileSync;
       fs.existsSync = originalExistsSync;
 
@@ -178,12 +182,14 @@ describe('convertLcovToCoveralls', () => {
     const originalExistsSync = fs.existsSync;
     fs.existsSync = () => true;
 
-    convertLcovToCoveralls(input, {filepath: libpath}, (err, output) => {
+    convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
       fs.readFileSync = originalReadFileSync;
       fs.existsSync = originalExistsSync;
 
       should.not.exist(err);
-      output.source_files[0].name.should.equal(path.posix.join('svgo', 'config.js'));
+      output.source_files[0].name.should.equal(
+        path.posix.join('svgo', 'config.js')
+      );
       done();
     });
   });

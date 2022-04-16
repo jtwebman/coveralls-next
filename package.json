@@ -53,15 +53,16 @@
     "minimist": "1.2.6"
   },
   "devDependencies": {
-    "eslint": "8.10.0",
+    "eslint": "8.13.0",
     "eslint-config-google": "0.14.0",
+    "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.0.0",
-    "mocha": "9.2.1",
+    "mocha": "9.2.2",
     "nyc": "15.1.0",
-    "prettier": "2.5.1",
+    "prettier": "2.6.2",
     "should": "13.2.3",
     "shx": "0.3.4",
-    "sinon": "13.0.1"
+    "sinon": "13.0.2"
   },
   "engines": {
     "node": ">=12"
@@ -75,41 +76,6 @@
     "reporter": [
       "lcov",
       "text-summary"
-    ]
-  },
-  "xo": {
-    "space": true,
-    "ignores": [
-      "test/fixtures/"
-    ],
-    "rules": {
-      "camelcase": "off",
-      "capitalized-comments": "off",
-      "handle-callback-err": "error",
-      "import/order": "off",
-      "no-negated-condition": "off",
-      "object-curly-spacing": [
-        "error",
-        "always"
-      ],
-      "quote-props": [
-        "error",
-        "consistent"
-      ],
-      "space-before-function-paren": [
-        "error",
-        "never"
-      ],
-      "spaced-comment": "off",
-      "unicorn/filename-case": "off"
-    },
-    "overrides": [
-      {
-        "files": "test/*.js",
-        "envs": [
-          "mocha"
-        ]
-      }
     ]
   }
 }

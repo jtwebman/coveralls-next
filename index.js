@@ -5,13 +5,10 @@ const minimist = require('minimist');
 // this needs to go before the other require()s so that
 // the other files can already use index.options
 module.exports.options = minimist(process.argv.slice(2), {
-  boolean: [
-    'verbose',
-    'stdout',
-  ],
+  boolean: ['verbose', 'stdout'],
   alias: {
-    'v': 'verbose',
-    's': 'stdout',
+    v: 'verbose',
+    s: 'stdout',
   },
 });
 
