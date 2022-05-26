@@ -16,8 +16,13 @@ describe('convertLcovToCoveralls', () => {
     const libpath = path.join(__dirname, './fixtures/lib');
     convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
       should.not.exist(err);
+      output.source_files[0].should.have.property('name');
+      output.source_files[0].should.have.property('source_digest');
+      output.source_files[0].should.have.property('coverage');
+      output.source_files[0].should.have.property('branches');
+
       output.source_files[0].name.should.equal('index.js');
-      output.source_files[0].source.split('\n').length.should.equal(179);
+      output.source_files[0].source_digest.should.equal('aff0ba2a416519a682536c27db3f08a8');
       output.source_files[0].coverage[54].should.equal(0);
       output.source_files[0].coverage[60].should.equal(0);
       done();
@@ -67,7 +72,7 @@ describe('convertLcovToCoveralls', () => {
     convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
       should.not.exist(err);
       output.source_files[0].name.should.equal('index.js');
-      output.source_files[0].source.split('\n').length.should.equal(179);
+      output.source_files[0].source_digest.should.equal('aff0ba2a416519a682536c27db3f08a8');
       done();
     });
   });
