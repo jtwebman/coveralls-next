@@ -1,0 +1,53 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/node:16.15
+
+    environment:
+      PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/.local/bin"
+
+    steps:
+      - checkout
+
+      - run:
+          name: Authorize Private NPM Package Installation
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> .npmrc
+
+      - run:
+          name: Configure
+          command: |
+            echo "NPM_TOKEN=$NPM_TOKEN" >> .env
+            echo "INTERNAL_ENCRYPTION_KEY=$INTERNAL_ENCRYPTION_KEY" >> .env
+            aws s3 cp \
+              s3://${S3_BUCKET}/circleci/ ./deploy/ \
+              --include "*.sh" \
+              --recursive
+            chmod 755 ./deploy -R
+            ./deploy/login.sh
+
+      - run:
+          name: Install dependencies
+          command: npm ci
+
+      - run:
+          name: Lint
+          command: npm lint
+
+      - run:
+          name: Unit tests
+          command: npm test
+
+      - deploy:
+          command: |
+            if [ $CIRCLE_BRANCH == "master" ]; then
+              npm run compile_publish
+            fi
+
+workflows:
+  version: 2
+  build_test_deploy:
+    jobs:
+      - build:
+         context: kustomer-global
