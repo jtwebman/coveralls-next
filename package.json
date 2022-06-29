@@ -43,7 +43,10 @@
     "mocha": "_mocha -b -R spec",
     "test-cov": "nyc npm run mocha",
     "test-coveralls": "nyc npm run mocha && shx cat ./coverage/lcov.info | node ./bin/coveralls.js",
-    "test": "npm run lint && npm run mocha"
+    "test": "npm run lint && npm run mocha",
+    "compile": "babel -d lib/ src/ --copy-files && npm run copy_package",
+    "compile_publish": "npm run compile && cd lib && npm install --production && npm publish --access restricted",
+    "copy_package": "cp -rf package.json lib && cp -rf .npmrc lib"
   },
   "dependencies": {
     "form-data": "4.0.0",
