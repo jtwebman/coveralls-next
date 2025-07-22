@@ -46,7 +46,7 @@
     "test": "npm run lint && npm run mocha"
   },
   "dependencies": {
-    "form-data": "4.0.0",
+    "form-data": "4.0.4",
     "js-yaml": "4.1.0",
     "lcov-parse": "1.0.0",
     "log-driver": "1.2.7",
