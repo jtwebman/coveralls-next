@@ -48,7 +48,7 @@ function _makeTemporaryGitDir() {
       '# pack-refs with: peeled fully-peeled\n' +
       '0000000000000000000000000000000000000000 refs/heads/other/ref\n' +
       '0000000000000000ffffffffffffffffffffffff refs/heads/master\n' +
-      'ffffffffffffffffffffffffffffffffffffffff refs/remotes/origin/other\n'
+      'ffffffffffffffffffffffffffffffffffffffff refs/remotes/origin/other\n',
   );
 }
 
@@ -60,8 +60,8 @@ function _deleteFolderRecursive(dir) {
   if (!dir.includes(path.normalize('coveralls-next/test'))) {
     throw new Error(
       `Tried to clean a temp git directory that did not match path: ${path.normalize(
-        'coveralls-next/test'
-      )}`
+        'coveralls-next/test',
+      )}`,
     );
   }
 

@@ -7,5 +7,5 @@ module.exports = {
   tabWidth: 2,
   useTabs: false,
   semi: true,
-  arrowParens: avoid,
+  arrowParens: 'avoid',
 };

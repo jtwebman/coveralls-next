@@ -44,14 +44,10 @@ describe('sendToCoveralls', () => {
       try {
         spyAppend
           .calledOnceWith('json', JSON.stringify(object))
-          .should.be.true(
-            'form data append not called with the correct values'
-          );
+          .should.be.true('form data append not called with the correct values');
         spySubmit
           .calledOnceWith('https://coveralls.io/api/v1/jobs', sinon.match.func)
-          .should.be.true(
-            'form data submit not called with the correct values'
-          );
+          .should.be.true('form data submit not called with the correct values');
         should(err).be.null();
         response.body.should.equal('response');
         done();
@@ -87,13 +83,8 @@ describe('sendToCoveralls', () => {
     index.sendToCoveralls(object, (err, response) => {
       try {
         spySubmit
-          .calledOnceWith(
-            'https://coveralls-ubuntu.domain.com/api/v1/jobs',
-            sinon.match.func
-          )
-          .should.be.true(
-            'form data submit not called with the correct values'
-          );
+          .calledOnceWith('https://coveralls-ubuntu.domain.com/api/v1/jobs', sinon.match.func)
+          .should.be.true('form data submit not called with the correct values');
         should(err).be.null();
         response.body.should.equal('response');
         done();

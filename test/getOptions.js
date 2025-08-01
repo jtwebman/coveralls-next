@@ -309,10 +309,7 @@ const testRepoTokenDetection = (sut, done) => {
   } else {
     token = 'REPO_TOKEN';
     service_name = 'travis-pro';
-    fs.writeFileSync(
-      file,
-      `repo_token: ${token}\nservice_name: ${service_name}`
-    );
+    fs.writeFileSync(file, `repo_token: ${token}\nservice_name: ${service_name}`);
     synthetic = true;
   }
 
@@ -809,9 +806,7 @@ function ensureLocalGitContext(options) {
     if (!b) {
       id = content;
     } else {
-      id = fs
-        .readFileSync(path.join(gitDir, 'refs', 'heads', b), 'utf8')
-        .trim();
+      id = fs.readFileSync(path.join(gitDir, 'refs', 'heads', b), 'utf8').trim();
       fs.writeFileSync(gitHead, id, 'utf8');
       wrapUp = () => {
         fs.writeFileSync(gitHead, content, 'utf8');
@@ -821,9 +816,7 @@ function ensureLocalGitContext(options) {
     content = fs.readFileSync(path.join(gitDir, 'HEAD'), 'utf8').trim();
     branch = (content.match(/^ref: refs\/heads\/(\S+)$/) || [])[1];
     id = branch
-      ? fs
-        .readFileSync(path.join(gitDir, 'refs', 'heads', branch), 'utf8')
-        .trim()
+      ? fs.readFileSync(path.join(gitDir, 'refs', 'heads', branch), 'utf8').trim()
       : content;
   }
 

@@ -4,12 +4,12 @@ const nodeUrl = require('url');
 const querystring = require('querystring');
 const _ = require('underscore');
 
-const UrlGrey = function(url) {
+const UrlGrey = function (url) {
   this.url = url;
   this._parsed = null;
 };
 
-UrlGrey.prototype.parsed = function() {
+UrlGrey.prototype.parsed = function () {
   if (!this._parsed) {
     this._parsed = nodeUrl.parse(this.url);
     const p = this._parsed;
@@ -40,7 +40,7 @@ UrlGrey.prototype.parsed = function() {
   return this._parsed;
 };
 
-UrlGrey.prototype.query = function(mergeObject) {
+UrlGrey.prototype.query = function (mergeObject) {
   if (mergeObject === false) {
     // clear the query entirely if the input === false
     return this.queryString('');
@@ -49,7 +49,7 @@ UrlGrey.prototype.query = function(mergeObject) {
   const url = this.url;
   if (!mergeObject) {
     const parsed = nodeUrl.parse(url);
-    if (!!parsed.search) {
+    if (parsed.search) {
       const qstr = parsed.search.substring(1);
       return querystring.parse(qstr);
     }
@@ -57,7 +57,7 @@ UrlGrey.prototype.query = function(mergeObject) {
   } else {
     // read the object out
     const oldQuery = querystring.parse(this.queryString());
-    _.each(mergeObject, function(v, k) {
+    _.each(mergeObject, function (v, k) {
       if (v === null) {
         delete oldQuery[k];
       } else {
@@ -69,7 +69,6 @@ UrlGrey.prototype.query = function(mergeObject) {
   }
 };
 
-
 addPropertyGetterSetter('protocol');
 addPropertyGetterSetter('port');
 addPropertyGetterSetter('username');
@@ -80,8 +79,7 @@ addPropertyGetterSetter('hash');
 addPropertyGetterSetter('query', 'queryString');
 addPropertyGetterSetter('pathname', 'path');
 
-UrlGrey.prototype.path = function() {
-  // eslint-disable-next-line prefer-rest-params
+UrlGrey.prototype.path = function () {
   const args = _.toArray(arguments);
   if (args.length !== 0) {
     const obj = new UrlGrey(this.toString());
@@ -97,26 +95,26 @@ UrlGrey.prototype.path = function() {
   return this.parsed().pathname;
 };
 
-
-UrlGrey.prototype.encode = function(str) {
+UrlGrey.prototype.encode = function (str) {
   return querystring.escape(str);
 };
 
-UrlGrey.prototype.decode = function(str) {
+UrlGrey.prototype.decode = function (str) {
   return querystring.unescape(str);
 };
 
-UrlGrey.prototype.parent = function() {
+UrlGrey.prototype.parent = function () {
   // read-only.  (can't SET parent)
   const pieces = this.path().split('/');
   const popped = pieces.pop();
-  if (popped === '') { // ignore trailing slash
+  if (popped === '') {
+    // ignore trailing slash
     pieces.pop();
   }
   return this.path(pieces.join('/'));
 };
 
-UrlGrey.prototype.child = function(suffix) {
+UrlGrey.prototype.child = function (suffix) {
   if (suffix) {
     suffix = encodeURIComponent(suffix);
     return this.path(this.path(), suffix);
@@ -124,7 +122,7 @@ UrlGrey.prototype.child = function(suffix) {
     // if no suffix, return the child
     const pieces = this.path().split('/');
     let last = _.last(pieces);
-    if ((pieces.length > 1) && (last === '')) {
+    if (pieces.length > 1 && last === '') {
       // ignore trailing slashes
       pieces.pop();
       last = _.last(pieces);
@@ -133,11 +131,11 @@ UrlGrey.prototype.child = function(suffix) {
   }
 };
 
-UrlGrey.prototype.toJSON = function() {
+UrlGrey.prototype.toJSON = function () {
   return this.toString();
 };
 
-UrlGrey.prototype.toString = function() {
+UrlGrey.prototype.toString = function () {
   const p = this.parsed();
   const userinfo = p.username + ':' + p.password;
   let retval = this.protocol() + '://';
@@ -159,7 +157,7 @@ UrlGrey.prototype.toString = function() {
   return retval;
 };
 
-module.exports = function(url) {
+module.exports = function (url) {
   return new UrlGrey(url);
 };
 
@@ -167,7 +165,7 @@ function addPropertyGetterSetter(propertyName, methodName) {
   if (!methodName) {
     methodName = propertyName;
   }
-  UrlGrey.prototype[methodName] = function(str) {
+  UrlGrey.prototype[methodName] = function (str) {
     if (!!str || str === '') {
       const obj = new UrlGrey(this.toString());
       obj.parsed()[propertyName] = str;
