@@ -3,30 +3,30 @@
 const should = require('should');
 const sinon = require('sinon');
 const logDriver = require('log-driver');
-const FormData = require('form-data');
+const { MockAgent, setGlobalDispatcher } = require('undici');
 const index = require('..');
 
 logDriver({ level: false });
 
-function getTestResponse(value) {
-  return {
-    on: (key, fn) => {
-      if (key === 'data') {
-        return fn(value);
-      }
-      fn();
-    },
-  };
-}
-
 describe('sendToCoveralls', () => {
   let realCoverallsHost;
+  let mockAgent;
+  let originalDispatcher;
+
   beforeEach(() => {
     realCoverallsHost = process.env.COVERALLS_ENDPOINT;
+    mockAgent = new MockAgent();
+    originalDispatcher = setGlobalDispatcher(mockAgent);
   });
 
   afterEach(() => {
     sinon.restore();
+    if (mockAgent) {
+      mockAgent.close();
+    }
+    if (originalDispatcher) {
+      setGlobalDispatcher(originalDispatcher);
+    }
     if (realCoverallsHost !== undefined) {
       process.env.COVERALLS_ENDPOINT = realCoverallsHost;
     } else {
@@ -34,21 +34,21 @@ describe('sendToCoveralls', () => {
     }
   });
 
-  it('passes on the correct params to form-data', done => {
+  it('passes on the correct params to fetch', done => {
     const object = { some: 'obj' };
-    const spyAppend = sinon.stub(FormData.prototype, 'append');
-    const spySubmit = sinon
-      .stub(FormData.prototype, 'submit')
-      .yields(null, getTestResponse('response'));
+    
+    const mockPool = mockAgent.get('https://coveralls.io');
+    mockPool
+      .intercept({
+        path: '/api/v1/jobs',
+        method: 'POST',
+      })
+      .reply(200, 'response');
+
     index.sendToCoveralls(object, (err, response) => {
       try {
-        spyAppend
-          .calledOnceWith('json', JSON.stringify(object))
-          .should.be.true('form data append not called with the correct values');
-        spySubmit
-          .calledOnceWith('https://coveralls.io/api/v1/jobs', sinon.match.func)
-          .should.be.true('form data submit not called with the correct values');
         should(err).be.null();
+        response.statusCode.should.equal(200);
         response.body.should.equal('response');
         done();
       } catch (error) {
@@ -58,13 +58,19 @@ describe('sendToCoveralls', () => {
   });
 
   it('when request rejects pass the error to the callback', done => {
-    const error = new Error('test error');
-    sinon.stub(FormData.prototype, 'submit').yields(error);
+    const mockPool = mockAgent.get('https://coveralls.io');
+    mockPool
+      .intercept({
+        path: '/api/v1/jobs',
+        method: 'POST',
+      })
+      .replyWithError(new Error('test error'));
+
     const object = { some: 'obj' };
 
     index.sendToCoveralls(object, (err, response) => {
       try {
-        err.should.equal(error);
+        err.message.should.equal('test error');
         should(response).be.undefined();
         done();
       } catch (error) {
@@ -75,17 +81,21 @@ describe('sendToCoveralls', () => {
 
   it('allows sending to enterprise url', done => {
     process.env.COVERALLS_ENDPOINT = 'https://coveralls-ubuntu.domain.com';
-    const spySubmit = sinon
-      .stub(FormData.prototype, 'submit')
-      .yields(null, getTestResponse('response'));
+    
+    const mockPool = mockAgent.get('https://coveralls-ubuntu.domain.com');
+    mockPool
+      .intercept({
+        path: '/api/v1/jobs',
+        method: 'POST',
+      })
+      .reply(200, 'response');
+
     const object = { some: 'obj' };
 
     index.sendToCoveralls(object, (err, response) => {
       try {
-        spySubmit
-          .calledOnceWith('https://coveralls-ubuntu.domain.com/api/v1/jobs', sinon.match.func)
-          .should.be.true('form data submit not called with the correct values');
         should(err).be.null();
+        response.statusCode.should.equal(200);
         response.body.should.equal('response');
         done();
       } catch (error) {
