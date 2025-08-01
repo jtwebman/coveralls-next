@@ -2,7 +2,7 @@
 
 [![Build Status][ci-image]][ci-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
-This is just a fork of [coveralls](https://github.com/nickmerwin/node-coveralls) with updated dependencies and replace [request](https://github.com/request/request) which is deprecated with [form-data](https://www.npmjs.com/package/form-data) which was the library request was using for form posts. I also replace [xo](https://github.com/xojs/xo) with eslint and prettier with google settings as it also used a bunch of deprecated dependencies.
+This is just a fork of [coveralls](https://github.com/nickmerwin/node-coveralls) with updated dependencies and replace [request](https://github.com/request/request) which is deprecated with [form-data](https://www.npmjs.com/package/form-data) and to now native Node fetch. I also replace [xo](https://github.com/xojs/xo) with eslint and prettier with google settings as it also used a bunch of deprecated dependencies.
 
 [Coveralls.io](https://coveralls.io/) support for Node.js. Get the great coverage reporting of coveralls.io and add a cool coverage button (like the one above) to your README.
 
