@@ -24,11 +24,9 @@ describe('handleInput', () => {
   });
   it('returns an error when there\'s an error converting', done => {
     sinon.stub(index, 'getOptions').callsFake(cb => cb(null, {}));
-    sinon
-      .stub(index, 'convertLcovToCoveralls')
-      .callsFake((input, options, cb) => {
-        cb('some error');
-      });
+    sinon.stub(index, 'convertLcovToCoveralls').callsFake((input, options, cb) => {
+      cb('some error');
+    });
     const path = sysPath.join(__dirname, './fixtures/onefile.lcov');
     const input = fs.readFileSync(path, 'utf8');
     index.handleInput(input, err => {

@@ -31,7 +31,7 @@ describe('fetchGitData', () => {
       err => {
         err.should.match(/You must provide the head.id/);
         done();
-      }
+      },
     );
   });
   it('should return default values', done => {
@@ -56,7 +56,7 @@ describe('fetchGitData', () => {
           remotes: [],
         });
         done();
-      }
+      },
     );
   });
   it('should override default values', done => {
@@ -98,7 +98,7 @@ describe('fetchGitData', () => {
           ],
         });
         done();
-      }
+      },
     );
   });
   it('should convert git.branch to a string', done => {
@@ -125,9 +125,9 @@ describe('fetchGitData', () => {
             should.not.exist(err);
             string.branch.should.be.String();
             done();
-          }
+          },
         );
-      }
+      },
     );
   });
   it('should convert git.remotes to an array', done => {
@@ -154,9 +154,9 @@ describe('fetchGitData', () => {
             should.not.exist(err);
             array.remotes.should.be.instanceof(Array);
             done();
-          }
+          },
         );
-      }
+      },
     );
   });
   it('should save passed remotes', done => {
@@ -192,7 +192,7 @@ describe('fetchGitData', () => {
           ],
         });
         done();
-      }
+      },
     );
   });
   it('should execute git commands when a valid commit hash is given', done => {

@@ -17,7 +17,7 @@ describe('convertLcovToCoveralls', () => {
     convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
       should.not.exist(err);
       output.source_files[0].name.should.equal('index.js');
-      output.source_files[0].source.split('\n').length.should.equal(179);
+      output.source_files[0].source.split('\n').length.should.equal(177);
       output.source_files[0].coverage[54].should.equal(0);
       output.source_files[0].coverage[60].should.equal(0);
       done();
@@ -67,7 +67,7 @@ describe('convertLcovToCoveralls', () => {
     convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
       should.not.exist(err);
       output.source_files[0].name.should.equal('index.js');
-      output.source_files[0].source.split('\n').length.should.equal(179);
+      output.source_files[0].source.split('\n').length.should.equal(177);
       done();
     });
   });
@@ -96,9 +96,7 @@ describe('convertLcovToCoveralls', () => {
       fs.existsSync = originalExistsSync;
 
       should.not.exist(err);
-      output.source_files[0].name.should.equal(
-        path.posix.join('svgo', 'config.js')
-      );
+      output.source_files[0].name.should.equal(path.posix.join('svgo', 'config.js'));
       done();
     });
   });
@@ -127,9 +125,7 @@ describe('convertLcovToCoveralls', () => {
       fs.existsSync = originalExistsSync;
 
       should.not.exist(err);
-      output.source_files[0].branches
-        .slice(0, 8)
-        .should.eql([18, 1, 0, 85, 18, 1, 1, 2]);
+      output.source_files[0].branches.slice(0, 8).should.eql([18, 1, 0, 85, 18, 1, 1, 2]);
       done();
     });
   });
@@ -187,9 +183,7 @@ describe('convertLcovToCoveralls', () => {
       fs.existsSync = originalExistsSync;
 
       should.not.exist(err);
-      output.source_files[0].name.should.equal(
-        path.posix.join('svgo', 'config.js')
-      );
+      output.source_files[0].name.should.equal(path.posix.join('svgo', 'config.js'));
       done();
     });
   });
