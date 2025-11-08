@@ -12,62 +12,62 @@ describe('getBaseOptions', () => {
   beforeEach(() => {
     process.env = { PATH: process.env.PATH };
   });
-  it('should set service_job_id if it exists', done => {
-    testServiceJobId(getBaseOptions, done);
+  it('should set service_job_id if it exists', async () => {
+    await testServiceJobId(getBaseOptions);
   });
-  it('should set git hash if it exists', done => {
-    testGitHash(getBaseOptions, done);
+  it('should set git hash if it exists', async () => {
+    await testGitHash(getBaseOptions);
   });
-  it('should set git branch if it exists', done => {
-    testGitBranch(getBaseOptions, done);
+  it('should set git branch if it exists', async () => {
+    await testGitBranch(getBaseOptions);
   });
-  it('should detect current git hash if not passed in', done => {
-    testGitHashDetection(getBaseOptions, done);
+  it('should detect current git hash if not passed in', async () => {
+    await testGitHashDetection(getBaseOptions);
   });
-  it('should detect current git branch if not passed in', done => {
-    testGitBranchDetection(getBaseOptions, done);
+  it('should detect current git branch if not passed in', async () => {
+    await testGitBranchDetection(getBaseOptions);
   });
-  it('should detect detached git head if no hash passed in', done => {
-    testGitDetachedHeadDetection(getBaseOptions, done);
+  it('should detect detached git head if no hash passed in', async () => {
+    await testGitDetachedHeadDetection(getBaseOptions);
   });
-  it('should fail local Git detection if no .git directory', done => {
-    testNoLocalGit(getBaseOptions, done);
+  it('should fail local Git detection if no .git directory', async () => {
+    await testNoLocalGit(getBaseOptions);
   });
-  it('should set repo_token if it exists', done => {
-    testRepoToken(getBaseOptions, done);
+  it('should set repo_token if it exists', async () => {
+    await testRepoToken(getBaseOptions);
   });
-  it('should detect repo_token if not passed in', done => {
-    testRepoTokenDetection(getBaseOptions, done);
+  it('should detect repo_token if not passed in', async () => {
+    await testRepoTokenDetection(getBaseOptions);
   });
-  it('should set service_name if it exists', done => {
-    testServiceName(getBaseOptions, done);
+  it('should set service_name if it exists', async () => {
+    await testServiceName(getBaseOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on travis-ci', done => {
-    testTravisCi(getBaseOptions, done);
+  it('should set service_name and service_job_id if it\'s running on travis-ci', async () => {
+    await testTravisCi(getBaseOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on travis-pro', done => {
-    testTravisPro(getBaseOptions, done);
+  it('should set service_name and service_job_id if it\'s running on travis-pro', async () => {
+    await testTravisPro(getBaseOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on jenkins', done => {
-    testJenkins(getBaseOptions, done);
+  it('should set service_name and service_job_id if it\'s running on jenkins', async () => {
+    await testJenkins(getBaseOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on circleci', done => {
-    testCircleCi(getBaseOptions, done);
+  it('should set service_name and service_job_id if it\'s running on circleci', async () => {
+    await testCircleCi(getBaseOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on codeship', done => {
-    testCodeship(getBaseOptions, done);
+  it('should set service_name and service_job_id if it\'s running on codeship', async () => {
+    await testCodeship(getBaseOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on drone', done => {
-    testDrone(getBaseOptions, done);
+  it('should set service_name and service_job_id if it\'s running on drone', async () => {
+    await testDrone(getBaseOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on wercker', done => {
-    testWercker(getBaseOptions, done);
+  it('should set service_name and service_job_id if it\'s running on wercker', async () => {
+    await testWercker(getBaseOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on Buildkite', done => {
-    testBuildkite(getBaseOptions, done);
+  it('should set service_name and service_job_id if it\'s running on Buildkite', async () => {
+    await testBuildkite(getBaseOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on Azure Pipelines', done => {
-    testAzurePipelines(getBaseOptions, done);
+  it('should set service_name and service_job_id if it\'s running on Azure Pipelines', async () => {
+    await testAzurePipelines(getBaseOptions);
   });
 });
 
@@ -75,227 +75,182 @@ describe('getOptions', () => {
   beforeEach(() => {
     process.env = { PATH: process.env.PATH };
   });
-  it('should require a callback', done => {
-    (() => {
-      getOptions();
-    }).should.throw();
-    done();
-  });
-  it('should get a filepath if there is one', done => {
+  it('should get a filepath if there is one', async () => {
     index.options._ = ['somepath'];
-    getOptions((err, options) => {
-      should.not.exist(err);
-      options.filepath.should.equal('somepath');
-      done();
-    });
+    const options = await getOptions();
+    options.filepath.should.equal('somepath');
   });
-  it('should get a filepath if there is one, even in verbose mode', done => {
+  it('should get a filepath if there is one, even in verbose mode', async () => {
     index.options.verbose = 'true';
     index.options._ = ['somepath'];
-    getOptions((err, options) => {
-      should.not.exist(err);
-      options.filepath.should.equal('somepath');
-      done();
-    });
+    const options = await getOptions();
+    options.filepath.should.equal('somepath');
   });
-  it('should set service_job_id if it exists', done => {
-    testServiceJobId(getOptions, done);
+  it('should set service_job_id if it exists', async () => {
+    await testServiceJobId(getOptions);
   });
-  it('should set git hash if it exists', done => {
-    testGitHash(getOptions, done);
+  it('should set git hash if it exists', async () => {
+    await testGitHash(getOptions);
   });
-  it('should set git branch if it exists', done => {
-    testGitBranch(getOptions, done);
+  it('should set git branch if it exists', async () => {
+    await testGitBranch(getOptions);
   });
-  it('should detect current git hash if not passed in', done => {
-    testGitHashDetection(getOptions, done);
+  it('should detect current git hash if not passed in', async () => {
+    await testGitHashDetection(getOptions);
   });
-  it('should detect current git branch if not passed in', done => {
-    testGitBranchDetection(getOptions, done);
+  it('should detect current git branch if not passed in', async () => {
+    await testGitBranchDetection(getOptions);
   });
-  it('should detect detached git head if no hash passed in', done => {
-    testGitDetachedHeadDetection(getOptions, done);
+  it('should detect detached git head if no hash passed in', async () => {
+    await testGitDetachedHeadDetection(getOptions);
   });
-  it('should fail local Git detection if no .git directory', done => {
-    testNoLocalGit(getOptions, done);
+  it('should fail local Git detection if no .git directory', async () => {
+    await testNoLocalGit(getOptions);
   });
-  it('should set repo_token if it exists', done => {
-    testRepoToken(getOptions, done);
+  it('should set repo_token if it exists', async () => {
+    await testRepoToken(getOptions);
   });
-  it('should detect repo_token if not passed in', done => {
-    testRepoTokenDetection(getOptions, done);
+  it('should detect repo_token if not passed in', async () => {
+    await testRepoTokenDetection(getOptions);
   });
-  it('should set paralell if env let set', done => {
-    testParallel(getOptions, done);
+  it('should set paralell if env let set', async () => {
+    await testParallel(getOptions);
   });
-  it('should set flag_name if it exists', done => {
-    testFlagName(getOptions, done);
+  it('should set flag_name if it exists', async () => {
+    await testFlagName(getOptions);
   });
-  it('should set service_name if it exists', done => {
-    testServiceName(getOptions, done);
+  it('should set service_name if it exists', async () => {
+    await testServiceName(getOptions);
   });
-  it('should set service_number if it exists', done => {
-    testServiceNumber(getOptions, done);
+  it('should set service_number if it exists', async () => {
+    await testServiceNumber(getOptions);
   });
-  it('should set service_pull_request if it exists', done => {
-    testServicePullRequest(getOptions, done);
+  it('should set service_pull_request if it exists', async () => {
+    await testServicePullRequest(getOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on travis-ci', done => {
-    testTravisCi(getOptions, done);
+  it('should set service_name and service_job_id if it\'s running on travis-ci', async () => {
+    await testTravisCi(getOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on travis-pro', done => {
-    testTravisPro(getOptions, done);
+  it('should set service_name and service_job_id if it\'s running on travis-pro', async () => {
+    await testTravisPro(getOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on jenkins', done => {
-    testJenkins(getOptions, done);
+  it('should set service_name and service_job_id if it\'s running on jenkins', async () => {
+    await testJenkins(getOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on circleci', done => {
-    testCircleCi(getOptions, done);
+  it('should set service_name and service_job_id if it\'s running on circleci', async () => {
+    await testCircleCi(getOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on codeship', done => {
-    testCodeship(getOptions, done);
+  it('should set service_name and service_job_id if it\'s running on codeship', async () => {
+    await testCodeship(getOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on drone', done => {
-    testDrone(getBaseOptions, done);
+  it('should set service_name and service_job_id if it\'s running on drone', async () => {
+    await testDrone(getBaseOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on wercker', done => {
-    testWercker(getOptions, done);
+  it('should set service_name and service_job_id if it\'s running on wercker', async () => {
+    await testWercker(getOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on Gitlab', done => {
-    testGitlab(getOptions, done);
+  it('should set service_name and service_job_id if it\'s running on Gitlab', async () => {
+    await testGitlab(getOptions);
   });
-  it('should set service_name and service_job_id if it\'s running on AppVeyor', done => {
-    testAppVeyor(getOptions, done);
+  it('should set service_name and service_job_id if it\'s running on AppVeyor', async () => {
+    await testAppVeyor(getOptions);
   });
-  it('should set service_name and service_job_id if it\'s running via Surf', done => {
-    testSurf(getOptions, done);
+  it('should set service_name and service_job_id if it\'s running via Surf', async () => {
+    await testSurf(getOptions);
   });
-  it('should set service_name and service_job_id if it\'s running via Buildkite', done => {
-    testBuildkite(getOptions, done);
+  it('should set service_name and service_job_id if it\'s running via Buildkite', async () => {
+    await testBuildkite(getOptions);
   });
-  it('should set service_name and service_job_id if it\'s running via Semaphore', done => {
-    testSemaphore(getOptions, done);
+  it('should set service_name and service_job_id if it\'s running via Semaphore', async () => {
+    await testSemaphore(getOptions);
   });
-  it('should set service_name and service_job_id if it\'s running via Azure Pipelines', done => {
-    testAzurePipelines(getOptions, done);
+  it('should set service_name and service_job_id if it\'s running via Azure Pipelines', async () => {
+    await testAzurePipelines(getOptions);
   });
-  it('should set service_name and service_job_id if it\'s running via CodeFresh', done => {
-    testCodefresh(getOptions, done);
+  it('should set service_name and service_job_id if it\'s running via CodeFresh', async () => {
+    await testCodefresh(getOptions);
   });
-  it('should override set options with user options', done => {
+  it('should override set options with user options', async () => {
     const userOptions = { service_name: 'OVERRIDDEN_SERVICE_NAME' };
     process.env.COVERALLS_SERVICE_NAME = 'SERVICE_NAME';
-    getOptions((err, options) => {
-      should.not.exist(err);
-      options.service_name.should.equal('OVERRIDDEN_SERVICE_NAME');
-      done();
-    }, userOptions);
+    const options = await getOptions(userOptions);
+    options.service_name.should.equal('OVERRIDDEN_SERVICE_NAME');
   });
 });
 
-const testServiceJobId = (sut, done) => {
+const testServiceJobId = async sut => {
   process.env.COVERALLS_SERVICE_JOB_ID = 'SERVICE_JOB_ID';
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_job_id.should.equal('SERVICE_JOB_ID');
-    done();
-  });
+  const options = await sut();
+  options.service_job_id.should.equal('SERVICE_JOB_ID');
 };
 
-const testGitHash = (sut, done) => {
+const testGitHash = async sut => {
   process.env.COVERALLS_GIT_COMMIT = 'e3e3e3e3e3e3e3e3e';
-  sut((err, options) => {
-    should.not.exist(err);
-    options.git.head.id.should.equal('e3e3e3e3e3e3e3e3e');
-    done();
-  });
+  const options = await sut();
+  options.git.head.id.should.equal('e3e3e3e3e3e3e3e3e');
 };
 
-const testGitDetachedHeadDetection = (sut, done) => {
+const testGitDetachedHeadDetection = async sut => {
   const localGit = ensureLocalGitContext({ detached: true });
-  sut((err, options) => {
-    should.not.exist(err);
-    options.git.head.id.should.equal(localGit.id);
-    localGit.wrapUp();
-    done();
-  });
+  const options = await sut();
+  options.git.head.id.should.equal(localGit.id);
+  localGit.wrapUp();
 };
 
-const testGitHashDetection = (sut, done) => {
+const testGitHashDetection = async sut => {
   const localGit = ensureLocalGitContext();
-  sut((err, options) => {
-    should.not.exist(err);
-    options.git.head.id.should.equal(localGit.id);
-    localGit.wrapUp();
-    done();
-  });
+  const options = await sut();
+  options.git.head.id.should.equal(localGit.id);
+  localGit.wrapUp();
 };
 
-const testGitBranch = (sut, done) => {
+const testGitBranch = async sut => {
   process.env.COVERALLS_GIT_COMMIT = 'e3e3e3e3e3e3e3e3e';
   process.env.COVERALLS_GIT_BRANCH = 'master';
-  sut((err, options) => {
-    should.not.exist(err);
-    options.git.branch.should.equal('master');
-    done();
-  });
+  const options = await sut();
+  options.git.branch.should.equal('master');
 };
 
-const testGitBranchDetection = (sut, done) => {
+const testGitBranchDetection = async sut => {
   const localGit = ensureLocalGitContext();
-  sut((err, options) => {
-    should.not.exist(err);
-    if (localGit.branch) {
-      options.git.branch.should.equal(localGit.branch);
-    } else {
-      // In detached HEAD state, branch will be empty string
-      options.git.branch.should.equal('');
-    }
+  const options = await sut();
+  if (localGit.branch) {
+    options.git.branch.should.equal(localGit.branch);
+  } else {
+    // In detached HEAD state, branch will be empty string
+    options.git.branch.should.equal('');
+  }
 
-    localGit.wrapUp();
-    done();
-  });
+  localGit.wrapUp();
 };
 
-const testNoLocalGit = (sut, done) => {
+const testNoLocalGit = async sut => {
   const localGit = ensureLocalGitContext({ noGit: true });
-  sut((err, options) => {
-    should.not.exist(err);
-    options.should.not.have.property('git');
-    localGit.wrapUp();
-    done();
-  });
+  const options = await sut();
+  options.should.not.have.property('git');
+  localGit.wrapUp();
 };
 
-const testRepoToken = (sut, done) => {
+const testRepoToken = async sut => {
   process.env.COVERALLS_REPO_TOKEN = 'REPO_TOKEN';
-  sut((err, options) => {
-    should.not.exist(err);
-    options.repo_token.should.equal('REPO_TOKEN');
-    done();
-  });
+  const options = await sut();
+  options.repo_token.should.equal('REPO_TOKEN');
 };
 
-const testParallel = (sut, done) => {
+const testParallel = async sut => {
   process.env.COVERALLS_PARALLEL = 'true';
-  sut((err, options) => {
-    should.not.exist(err);
-    options.parallel.should.equal(true);
-    done();
-  });
+  const options = await sut();
+  options.parallel.should.equal(true);
 };
 
-const testFlagName = (sut, done) => {
+const testFlagName = async sut => {
   process.env.COVERALLS_FLAG_NAME = 'test flag';
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.flag_name.should.equal('test flag');
-    done();
-  });
+  const options = await sut();
+  options.flag_name.should.equal('test flag');
 };
 
-const testRepoTokenDetection = (sut, done) => {
+const testRepoTokenDetection = async sut => {
   const file = path.join(process.cwd(), '.coveralls.yml');
   let token;
   let service_name;
@@ -314,80 +269,63 @@ const testRepoTokenDetection = (sut, done) => {
     synthetic = true;
   }
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.repo_token.should.equal(token);
+  const options = await sut();
+  options.repo_token.should.equal(token);
 
-    if (service_name) {
-      options.service_name.should.equal(service_name);
-    }
+  if (service_name) {
+    options.service_name.should.equal(service_name);
+  }
 
-    if (synthetic) {
-      fs.unlink(file, done);
-    }
-  });
+  if (synthetic) {
+    fs.unlinkSync(file);
+  }
 };
 
-const testServiceName = (sut, done) => {
+const testServiceName = async sut => {
   process.env.COVERALLS_SERVICE_NAME = 'SERVICE_NAME';
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('SERVICE_NAME');
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('SERVICE_NAME');
 };
 
-const testServiceNumber = (sut, done) => {
+const testServiceNumber = async sut => {
   process.env.COVERALLS_SERVICE_NUMBER = 'SERVICE_NUMBER';
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_number.should.equal('SERVICE_NUMBER');
-    done();
-  });
+  const options = await sut();
+  options.service_number.should.equal('SERVICE_NUMBER');
 };
 
-const testServicePullRequest = (sut, done) => {
+const testServicePullRequest = async sut => {
   process.env.CI_PULL_REQUEST = 'https://github.com/fake/fake/pulls/123';
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_pull_request.should.equal('123');
-    done();
-  });
+  const options = await sut();
+  options.service_pull_request.should.equal('123');
 };
 
-const testTravisCi = (sut, done) => {
+const testTravisCi = async sut => {
   process.env.TRAVIS = 'TRUE';
   process.env.TRAVIS_BUILD_NUMBER = '1';
   process.env.TRAVIS_JOB_ID = '12';
   process.env.TRAVIS_PULL_REQUEST = '123';
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('travis-ci');
-    options.service_number.should.equal('1');
-    options.service_job_id.should.equal('12');
-    options.service_pull_request.should.equal('123');
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('travis-ci');
+  options.service_number.should.equal('1');
+  options.service_job_id.should.equal('12');
+  options.service_pull_request.should.equal('123');
 };
 
-const testTravisPro = (sut, done) => {
+const testTravisPro = async sut => {
   const file = path.join(process.cwd(), '.coveralls.yml');
   const service_name = 'travis-pro';
   fs.writeFileSync(file, `service_name: ${service_name}`);
   process.env.TRAVIS = 'TRUE';
   process.env.TRAVIS_BUILD_NUMBER = '1234';
   process.env.TRAVIS_COMMIT = 'a12s2d3df4f435g45g45g67h5g6';
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal(service_name);
-    options.service_number.should.equal('1234');
-    options.git.head.id.should.equal('HEAD');
-    fs.unlinkSync(file);
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal(service_name);
+  options.service_number.should.equal('1234');
+  options.git.head.id.should.equal('HEAD');
+  fs.unlinkSync(file);
 };
 
-const testJenkins = (sut, done) => {
+const testJenkins = async sut => {
   process.env.JENKINS_URL = 'something';
   process.env.BUILD_ID = '1234';
   process.env.GIT_COMMIT = 'a12s2d3df4f435g45g45g67h5g6';
@@ -406,16 +344,13 @@ const testJenkins = (sut, done) => {
     remotes: [],
   };
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('jenkins');
-    options.service_job_id.should.equal('1234');
-    options.git.should.eql(git);
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('jenkins');
+  options.service_job_id.should.equal('1234');
+  options.git.should.eql(git);
 };
 
-const testCircleCi = (sut, done) => {
+const testCircleCi = async sut => {
   process.env.CIRCLECI = true;
   process.env.CIRCLE_BRANCH = 'master';
   process.env.CIRCLE_WORKFLOW_ID = '1';
@@ -436,18 +371,15 @@ const testCircleCi = (sut, done) => {
     remotes: [],
   };
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('circleci');
-    options.service_number.should.equal('2');
-    options.service_job_number.should.equal('2');
-    options.service_pull_request.should.equal('3');
-    options.git.should.eql(git);
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('circleci');
+  options.service_number.should.equal('2');
+  options.service_job_number.should.equal('2');
+  options.service_pull_request.should.equal('3');
+  options.git.should.eql(git);
 };
 
-const testCodeship = (sut, done) => {
+const testCodeship = async sut => {
   process.env.CI_NAME = 'codeship';
   process.env.CI_BUILD_NUMBER = '1234';
   process.env.CI_COMMIT_ID = 'e3e3e3e3e3e3e3e3e';
@@ -469,16 +401,13 @@ const testCodeship = (sut, done) => {
     remotes: [],
   };
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('codeship');
-    options.service_job_id.should.equal('1234');
-    options.git.should.eql(git);
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('codeship');
+  options.service_job_id.should.equal('1234');
+  options.git.should.eql(git);
 };
 
-const testDrone = (sut, done) => {
+const testDrone = async sut => {
   process.env.DRONE = true;
   process.env.DRONE_BUILD_NUMBER = '1234';
   process.env.DRONE_COMMIT = 'e3e3e3e3e3e3e3e3e';
@@ -501,16 +430,13 @@ const testDrone = (sut, done) => {
     remotes: [],
   };
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('drone');
-    options.service_job_id.should.equal('1234');
-    options.git.should.eql(git);
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('drone');
+  options.service_job_id.should.equal('1234');
+  options.git.should.eql(git);
 };
 
-const testWercker = (sut, done) => {
+const testWercker = async sut => {
   process.env.WERCKER = true;
   process.env.WERCKER_BUILD_ID = '1234';
   process.env.WERCKER_GIT_COMMIT = 'e3e3e3e3e3e3e3e3e';
@@ -529,16 +455,13 @@ const testWercker = (sut, done) => {
     remotes: [],
   };
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('wercker');
-    options.service_job_id.should.equal('1234');
-    options.git.should.eql(git);
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('wercker');
+  options.service_job_id.should.equal('1234');
+  options.git.should.eql(git);
 };
 
-const testGitlab = (sut, done) => {
+const testGitlab = async sut => {
   process.env.GITLAB_CI = true;
   process.env.CI_BUILD_NAME = 'spec:one';
   process.env.CI_BUILD_ID = '1234';
@@ -559,17 +482,14 @@ const testGitlab = (sut, done) => {
     remotes: [],
   };
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('gitlab-ci');
-    options.service_job_id.should.equal('1234');
-    options.service_pull_request.should.equal('1');
-    options.git.should.eql(git);
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('gitlab-ci');
+  options.service_job_id.should.equal('1234');
+  options.service_pull_request.should.equal('1');
+  options.git.should.eql(git);
 };
 
-const testAppVeyor = (sut, done) => {
+const testAppVeyor = async sut => {
   process.env.APPVEYOR = true;
   process.env.APPVEYOR_BUILD_ID = '1234';
   process.env.APPVEYOR_BUILD_NUMBER = '5678';
@@ -589,17 +509,14 @@ const testAppVeyor = (sut, done) => {
     remotes: [],
   };
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('appveyor');
-    options.service_job_id.should.equal('1234');
-    options.service_job_number.should.equal('5678');
-    options.git.should.eql(git);
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('appveyor');
+  options.service_job_id.should.equal('1234');
+  options.service_job_number.should.equal('5678');
+  options.git.should.eql(git);
 };
 
-const testSurf = (sut, done) => {
+const testSurf = async sut => {
   process.env.CI_NAME = 'surf';
   process.env.SURF_SHA1 = 'e3e3e3e3e3e3e3e3e';
   process.env.SURF_REF = 'feature';
@@ -617,15 +534,12 @@ const testSurf = (sut, done) => {
     remotes: [],
   };
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('surf');
-    options.git.should.eql(git);
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('surf');
+  options.git.should.eql(git);
 };
 
-const testBuildkite = (sut, done) => {
+const testBuildkite = async sut => {
   process.env.BUILDKITE = true;
   process.env.BUILDKITE_BUILD_NUMBER = '1234';
   process.env.BUILDKITE_COMMIT = 'e3e3e3e3e3e3e3e3e';
@@ -647,15 +561,12 @@ const testBuildkite = (sut, done) => {
     remotes: [],
   };
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('buildkite');
-    options.git.should.eql(git);
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('buildkite');
+  options.git.should.eql(git);
 };
 
-const testSemaphore = (sut, done) => {
+const testSemaphore = async sut => {
   process.env.SEMAPHORE = true;
   process.env.SEMAPHORE_WORKFLOW_ID = '1234';
   process.env.SEMAPHORE_GIT_SHA = 'e3e3e3e3e3e3e3e3e';
@@ -675,17 +586,14 @@ const testSemaphore = (sut, done) => {
     remotes: [],
   };
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('semaphore');
-    options.service_job_id.should.equal('1234');
-    options.service_pull_request.should.equal('456');
-    options.git.should.eql(git);
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('semaphore');
+  options.service_job_id.should.equal('1234');
+  options.service_pull_request.should.equal('456');
+  options.git.should.eql(git);
 };
 
-const testAzurePipelines = (sut, done) => {
+const testAzurePipelines = async sut => {
   process.env.TF_BUILD = 'true';
   process.env.BUILD_SOURCEBRANCHNAME = 'hotfix';
   process.env.BUILD_SOURCEVERSION = 'e3e3e3e3e3e3e3e3e';
@@ -705,17 +613,14 @@ const testAzurePipelines = (sut, done) => {
     remotes: [],
   };
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('Azure Pipelines');
-    options.service_job_id.should.equal('1234');
-    options.service_pull_request.should.equal('123');
-    options.git.should.eql(git);
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('Azure Pipelines');
+  options.service_job_id.should.equal('1234');
+  options.service_pull_request.should.equal('123');
+  options.git.should.eql(git);
 };
 
-const testCodefresh = (sut, done) => {
+const testCodefresh = async sut => {
   process.env.CF_BRANCH = 'hotfix';
   process.env.CF_REVISION = 'e3e3e3e3e3e3e3e3e';
   process.env.CF_BUILD_ID = '1234';
@@ -736,14 +641,11 @@ const testCodefresh = (sut, done) => {
     remotes: [],
   };
 
-  sut((err, options) => {
-    should.not.exist(err);
-    options.service_name.should.equal('Codefresh');
-    options.service_job_id.should.equal('1234');
-    options.service_pull_request.should.equal('3');
-    options.git.should.eql(git);
-    done();
-  });
+  const options = await sut();
+  options.service_name.should.equal('Codefresh');
+  options.service_job_id.should.equal('1234');
+  options.service_pull_request.should.equal('3');
+  options.git.should.eql(git);
 };
 
 function ensureLocalGitContext(options) {
@@ -829,7 +731,7 @@ function ensureLocalGitContext(options) {
 }
 
 describe('error handling', () => {
-  it('should handle malformed .coveralls.yml gracefully', done => {
+  it('should handle malformed .coveralls.yml gracefully', async () => {
     const fs = require('fs');
     const originalReadFileSync = fs.readFileSync;
     const originalStatSync = fs.statSync;
@@ -840,18 +742,15 @@ describe('error handling', () => {
 
     const sut = require('../lib/getOptions').getBaseOptions;
 
-    sut((err, options) => {
-      fs.readFileSync = originalReadFileSync;
-      fs.statSync = originalStatSync;
+    const options = await sut();
+    fs.readFileSync = originalReadFileSync;
+    fs.statSync = originalStatSync;
 
-      // Should not throw, should handle error gracefully
-      should.not.exist(err);
-      should.exist(options);
-      done();
-    });
+    // Should not throw, should handle error gracefully
+    should.exist(options);
   });
 
-  it('should warn about non-ENOENT errors when reading .coveralls.yml', done => {
+  it('should warn about non-ENOENT errors when reading .coveralls.yml', async () => {
     const fs = require('fs');
     const originalStatSync = fs.statSync;
 
@@ -864,23 +763,20 @@ describe('error handling', () => {
 
     const sut = require('../lib/getOptions').getBaseOptions;
 
-    sut((err, options) => {
-      fs.statSync = originalStatSync;
+    const options = await sut();
+    fs.statSync = originalStatSync;
 
-      // Should handle gracefully and continue
-      should.not.exist(err);
-      should.exist(options);
-      done();
-    });
+    // Should handle gracefully and continue
+    should.exist(options);
   });
 
-  it('should warn when fetchGitData returns an error', done => {
+  it('should warn when fetchGitData returns an error', async () => {
     const fetchGitData = require('../lib/fetchGitData');
     const originalFetchGitData = fetchGitData.bind({});
 
     // Replace fetchGitData module to return error
-    require.cache[require.resolve('../lib/fetchGitData')].exports = (data, cb) => {
-      cb(new Error('Git error'));
+    require.cache[require.resolve('../lib/fetchGitData')].exports = () => {
+      return Promise.reject(new Error('Git error'));
     };
 
     // Clear getOptions from cache to pick up the mocked fetchGitData
@@ -889,22 +785,19 @@ describe('error handling', () => {
     process.env.COVERALLS_GIT_COMMIT = 'HEAD';
     const sut = require('../lib/getOptions').getBaseOptions;
 
-    sut((err, options) => {
-      // Restore original
-      require.cache[require.resolve('../lib/fetchGitData')].exports = originalFetchGitData;
-      // Clear getOptions from cache to restore original behavior
-      delete require.cache[require.resolve('../lib/getOptions')];
-      delete process.env.COVERALLS_GIT_COMMIT;
+    const options = await sut();
+    // Restore original
+    require.cache[require.resolve('../lib/fetchGitData')].exports = originalFetchGitData;
+    // Clear getOptions from cache to restore original behavior
+    delete require.cache[require.resolve('../lib/getOptions')];
+    delete process.env.COVERALLS_GIT_COMMIT;
 
-      // Should not fail, just warn
-      should.not.exist(err);
-      should.exist(options);
-      should.not.exist(options.git);
-      done();
-    });
+    // Should not fail, just warn
+    should.exist(options);
+    should.not.exist(options.git);
   });
 
-  it('should use BRANCH_NAME fallback when CHANGE_BRANCH and GIT_BRANCH not set', done => {
+  it('should use BRANCH_NAME fallback when CHANGE_BRANCH and GIT_BRANCH not set', async () => {
     process.env = { PATH: process.env.PATH };
     process.env.JENKINS_URL = 'http://jenkins.example.com';
     process.env.BUILD_ID = '1234';
@@ -915,32 +808,26 @@ describe('error handling', () => {
     delete process.env.GIT_BRANCH;
 
     const { getBaseOptions } = require('../lib/getOptions');
-    getBaseOptions((err, options) => {
-      should.not.exist(err);
-      should.exist(options.git);
-      should.exist(options.git.branch);
-      // The branch will come from git, but we're testing that BRANCH_NAME is used
-      // in the code path on line 53
-      done();
-    });
+    const options = await getBaseOptions();
+    should.exist(options.git);
+    should.exist(options.git.branch);
+    // The branch will come from git, but we're testing that BRANCH_NAME is used
+    // in the code path on line 53
   });
 
-  it('should handle CircleCI without CI_PULL_REQUEST', done => {
+  it('should handle CircleCI without CI_PULL_REQUEST', async () => {
     process.env = { PATH: process.env.PATH };
     process.env.CIRCLECI = 'true';
     process.env.CIRCLE_BUILD_NUM = '1234';
 
     const { getBaseOptions } = require('../lib/getOptions');
-    getBaseOptions((err, options) => {
-      should.not.exist(err);
-      options.service_name.should.equal('circleci');
-      options.service_number.should.equal('1234');
-      should.not.exist(options.service_pull_request);
-      done();
-    });
+    const options = await getBaseOptions();
+    options.service_name.should.equal('circleci');
+    options.service_number.should.equal('1234');
+    should.not.exist(options.service_pull_request);
   });
 
-  it('should handle .coveralls.yml that exists but is not a file', done => {
+  it('should handle .coveralls.yml that exists but is not a file', async () => {
     process.env = { PATH: process.env.PATH };
     const fs = require('fs');
     const originalStatSync = fs.statSync;
@@ -954,15 +841,12 @@ describe('error handling', () => {
     };
 
     const { getBaseOptions } = require('../lib/getOptions');
-    getBaseOptions((err, options) => {
-      fs.statSync = originalStatSync;
-      should.not.exist(err);
-      should.exist(options);
-      done();
-    });
+    const options = await getBaseOptions();
+    fs.statSync = originalStatSync;
+    should.exist(options);
   });
 
-  it('should handle .coveralls.yml with repo_token but no service_name', done => {
+  it('should handle .coveralls.yml with repo_token but no service_name', async () => {
     process.env = { PATH: process.env.PATH };
     const fs = require('fs');
     const path = require('path');
@@ -972,24 +856,19 @@ describe('error handling', () => {
     fs.writeFileSync(file, 'repo_token: test_token_123');
 
     const { getBaseOptions } = require('../lib/getOptions');
-    getBaseOptions((err, options) => {
-      fs.unlinkSync(file);
-      should.not.exist(err);
-      options.repo_token.should.equal('test_token_123');
-      done();
-    });
+    const options = await getBaseOptions();
+    fs.unlinkSync(file);
+    options.repo_token.should.equal('test_token_123');
   });
 
-  it('should handle userOptions with non-own properties', done => {
+  it('should handle userOptions with non-own properties', async () => {
     // Create an object with inherited properties
     const parent = { inheritedProp: 'inherited' };
     const userOptions = Object.create(parent);
     userOptions.ownProp = 'own';
 
     const { getOptions } = require('../lib/getOptions');
-    getOptions(err => {
-      should.not.exist(err);
-      done();
-    }, userOptions);
+    const options = await getOptions(userOptions);
+    should.exist(options);
   });
 });

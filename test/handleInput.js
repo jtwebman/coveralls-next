@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const sysPath = require('path');
-const should = require('should');
+require('should');
 const sinon = require('sinon');
 const index = require('..');
 
@@ -10,63 +10,39 @@ describe('handleInput', () => {
   afterEach(() => {
     sinon.restore();
   });
-  it('returns an error when there\'s an error getting options', done => {
-    sinon.stub(index, 'getOptions').callsFake(cb => cb('some error', {}));
+  it('returns an error when there\'s an error getting options', async () => {
+    sinon.stub(index, 'getOptions').rejects(new Error('some error'));
     const path = sysPath.join(__dirname, './fixtures/onefile.lcov');
     const input = fs.readFileSync(path, 'utf8');
-    index.handleInput(input, err => {
-      err.should.equal('some error');
-      done();
-    });
+    await index.handleInput(input).should.be.rejectedWith('some error');
   });
-  it('returns an error when there\'s an error converting', done => {
-    sinon.stub(index, 'getOptions').callsFake(cb => cb(null, {}));
-    sinon.stub(index, 'convertLcovToCoveralls').callsFake((input, options, cb) => {
-      cb('some error');
-    });
+  it('returns an error when there\'s an error converting', async () => {
+    sinon.stub(index, 'getOptions').resolves({});
+    sinon.stub(index, 'convertLcovToCoveralls').rejects(new Error('some error'));
     const path = sysPath.join(__dirname, './fixtures/onefile.lcov');
     const input = fs.readFileSync(path, 'utf8');
-    index.handleInput(input, err => {
-      err.should.equal('some error');
-      done();
-    });
+    await index.handleInput(input).should.be.rejectedWith('some error');
   });
-  it('returns an error when there\'s an error sending', done => {
-    sinon.stub(index, 'getOptions').callsFake(cb => cb(null, {}));
-    sinon.stub(index, 'sendToCoveralls').callsFake((postData, cb) => {
-      cb('some error');
-    });
+  it('returns an error when there\'s an error sending', async () => {
+    sinon.stub(index, 'getOptions').resolves({});
+    sinon.stub(index, 'sendToCoveralls').rejects(new Error('some error'));
     const path = sysPath.join(__dirname, './fixtures/onefile.lcov');
     const input = fs.readFileSync(path, 'utf8');
-    index.handleInput(input, err => {
-      err.should.equal('some error');
-      done();
-    });
+    await index.handleInput(input).should.be.rejectedWith('some error');
   });
-  it('returns an error when there\'s a bad status code', done => {
-    sinon.stub(index, 'getOptions').callsFake(cb => cb(null, {}));
-    sinon.stub(index, 'sendToCoveralls').callsFake((postData, cb) => {
-      cb(null, { statusCode: 500, body: 'body' });
-    });
+  it('returns an error when there\'s a bad status code', async () => {
+    sinon.stub(index, 'getOptions').resolves({});
+    sinon.stub(index, 'sendToCoveralls').resolves({ statusCode: 500, body: 'body' });
     const path = sysPath.join(__dirname, './fixtures/onefile.lcov');
     const input = fs.readFileSync(path, 'utf8');
-    index.handleInput(input, err => {
-      err.should.be.an.Error();
-      err.message.should.equal('Bad response: 500 body');
-      done();
-    });
+    await index.handleInput(input).should.be.rejectedWith('Bad response: 500 body');
   });
-  it('completes successfully when there are no errors', done => {
-    sinon.stub(index, 'getOptions').callsFake(cb => cb(null, {}));
-    sinon.stub(index, 'sendToCoveralls').callsFake((postData, cb) => {
-      cb(null, { statusCode: 200, body: 'body' });
-    });
+  it('completes successfully when there are no errors', async () => {
+    sinon.stub(index, 'getOptions').resolves({});
+    sinon.stub(index, 'sendToCoveralls').resolves({ statusCode: 200, body: 'body' });
     const path = sysPath.join(__dirname, './fixtures/onefile.lcov');
     const input = fs.readFileSync(path, 'utf8');
-    index.handleInput(input, (err, body) => {
-      should.not.exist(err);
-      body.should.equal('body');
-      done();
-    });
+    const body = await index.handleInput(input);
+    body.should.equal('body');
   });
 });
