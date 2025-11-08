@@ -1,7 +1,7 @@
 {
   "name": "coveralls-next",
   "description": "takes json-cov output into stdin and POSTs to coveralls.io",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "keywords": [
     "coverage",
     "coveralls"
@@ -52,17 +52,17 @@
     "minimist": "1.2.8"
   },
   "devDependencies": {
-    "eslint": "9.32.0",
+    "eslint": "9.39.1",
     "eslint-config-google": "0.14.0",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-prettier": "5.5.3",
-    "mocha": "11.7.1",
+    "eslint-plugin-prettier": "5.5.4",
+    "mocha": "11.7.5",
     "nyc": "17.1.0",
     "prettier": "3.6.2",
     "should": "13.2.3",
     "shx": "0.4.0",
     "sinon": "21.0.0",
-    "undici": "6.21.3"
+    "undici": "7.16.0"
   },
   "engines": {
     "node": ">=18"

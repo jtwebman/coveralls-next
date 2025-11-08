@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [ 18, 20, 22, 24]
+        node: [18, 20, 22, 24, 25]
         os: [ubuntu-latest, windows-latest]
 
     steps:
@@ -34,7 +34,7 @@ jobs:
 
       - name: test token
         run: echo "${{ secrets.COVERALLS_REPO_TOKEN }}"
-    
+
       - name: Coveralls
         run: cat ./coverage/lcov.info | node ./bin/coveralls.js
         env:
@@ -43,7 +43,7 @@ jobs:
           COVERALLS_SERVICE_JOB_ID: ${{github.run_id}}
           COVERALLS_SERVICE_JOB_NUMBER: ${{github.run_number}}
           COVERALLS_FLAG_NAME: ${{matrix.os}}-node-${{ matrix.node }}
-          COVERALLS_PARALLEL: true 
+          COVERALLS_PARALLEL: true
           NODE_COVERALLS_DEBUG: 1
 
   finish:
@@ -58,4 +58,3 @@ jobs:
           curl -kv -d 'payload[build_num]=${{github.run_id}}&payload[status]=done' https://coveralls.io/webhook?repo_token=${COVERALLS_REPO_TOKEN}
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-  
