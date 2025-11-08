@@ -2,11 +2,8 @@
 
 const should = require('should');
 const sinon = require('sinon');
-const logDriver = require('log-driver');
 const { MockAgent, setGlobalDispatcher } = require('undici');
 const index = require('..');
-
-logDriver({ level: false });
 
 describe('sendToCoveralls', () => {
   let realCoverallsHost;

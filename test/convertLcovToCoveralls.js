@@ -3,10 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const should = require('should');
-const logDriver = require('log-driver');
 const { convertLcovToCoveralls, getOptions } = require('..');
-
-logDriver({ level: false });
 
 describe('convertLcovToCoveralls', () => {
   it('should convert a simple lcov file', done => {
