@@ -233,25 +233,25 @@ describe('fetchGitData', () => {
     match.should.equal(branchName);
   });
 
-  it('should handle when git branch output has no current branch marker', done => {
+  it('should handle detached HEAD state', done => {
     let callCount = 0;
     const mockExecFile = (cmd, args, cb) => {
       callCount++;
       if (callCount === 1) {
         // First call: git rev-parse --verify HEAD (succeeds)
-        return cb(null, '');
+        cb(null, '');
       } else if (callCount === 2) {
         // Second call: git cat-file -p HEAD (succeeds)
         const response =
           '\nauthor Test Author <test@example.com> 1234567890 +0000\n' +
           'committer Test Committer <test@example.com> 1234567890 +0000\n\nTest commit message';
-        return cb(null, response);
+        cb(null, response);
       } else if (callCount === 3) {
-        // Third call: git branch (returns output without * marker)
-        return cb(null, '  master\n  develop\n');
+        // Third call: git branch (returns detached HEAD)
+        cb(null, '* (HEAD detached at abc123)\n  master\n  develop\n');
       } else if (callCount === 4) {
         // Fourth call: git remote -v
-        return cb(null, 'origin\thttps://github.com/user/repo.git (push)\n');
+        cb(null, 'origin\thttps://github.com/user/repo.git (push)\n');
       }
     };
 
@@ -267,7 +267,49 @@ describe('fetchGitData', () => {
       },
       (err, git) => {
         should.not.exist(err);
-        should.not.exist(git.branch); // Branch will be undefined
+        // Branch will be empty string in detached HEAD state
+        git.branch.should.equal('');
+        done();
+      },
+    );
+  });
+
+  it('should handle when git branch output has no current branch marker', done => {
+    let callCount = 0;
+    const mockExecFile = (cmd, args, cb) => {
+      callCount++;
+      if (callCount === 1) {
+        // First call: git rev-parse --verify HEAD (succeeds)
+        cb(null, '');
+      } else if (callCount === 2) {
+        // Second call: git cat-file -p HEAD (succeeds)
+        const response =
+          '\nauthor Test Author <test@example.com> 1234567890 +0000\n' +
+          'committer Test Committer <test@example.com> 1234567890 +0000\n\nTest commit message';
+        cb(null, response);
+      } else if (callCount === 3) {
+        // Third call: git branch (returns output without * marker)
+        cb(null, '  master\n  develop\n');
+      } else if (callCount === 4) {
+        // Fourth call: git remote -v
+        cb(null, 'origin\thttps://github.com/user/repo.git (push)\n');
+      }
+    };
+
+    const fetchGitDataMocked = proxyquire('../lib/fetchGitData', {
+      child_process: { execFile: mockExecFile },
+    });
+
+    fetchGitDataMocked(
+      {
+        head: {
+          id: 'HEAD',
+        },
+      },
+      (err, git) => {
+        should.not.exist(err);
+        // Branch will be empty string when no current branch marker found
+        git.branch.should.equal('');
         done();
       },
     );
