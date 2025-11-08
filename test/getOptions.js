@@ -248,7 +248,8 @@ const testGitBranchDetection = (sut, done) => {
     if (localGit.branch) {
       options.git.branch.should.equal(localGit.branch);
     } else {
-      should(options.git.branch).be.undefined();
+      // In detached HEAD state, branch will be empty string
+      options.git.branch.should.equal('');
     }
 
     localGit.wrapUp();
