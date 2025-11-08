@@ -1,7 +1,6 @@
 'use strict';
 
 const should = require('should');
-const sinon = require('sinon');
 const { MockAgent, setGlobalDispatcher } = require('undici');
 const index = require('..');
 
@@ -17,7 +16,6 @@ describe('sendToCoveralls', () => {
   });
 
   afterEach(() => {
-    sinon.restore();
     if (mockAgent) {
       mockAgent.close();
     }
@@ -109,6 +107,7 @@ describe('sendToCoveralls', () => {
     process.stdout.write = function (...args) {
       if (args[0] === JSON.stringify(object)) {
         process.stdout.write = origStdoutWrite;
+        index.options.stdout = false;
         return done();
       }
 
@@ -120,6 +119,83 @@ describe('sendToCoveralls', () => {
     index.sendToCoveralls(object, (err, response) => {
       should.not.exist(err);
       response.statusCode.should.equal(200);
+    });
+  });
+
+  it('when request rejects with error without cause', done => {
+    const mockPool = mockAgent.get('https://coveralls.io');
+    mockPool
+      .intercept({
+        path: '/api/v1/jobs',
+        method: 'POST',
+      })
+      .replyWithError(new Error('Network error'));
+
+    const object = { some: 'obj' };
+
+    index.sendToCoveralls(object, (err, response) => {
+      should.exist(err);
+      err.message.should.equal('Network error');
+      should.not.exist(response);
+      done();
+    });
+  });
+
+  it('when fetch throws error with message "fetch failed" and cause, unwraps', done => {
+    const proxyquire = require('proxyquire');
+    const causeError = new Error('Connection refused');
+    const fetchError = new Error('fetch failed');
+    fetchError.cause = causeError;
+
+    const mockFetch = async () => {
+      throw fetchError;
+    };
+
+    const sendToCoverallsMocked = proxyquire('../lib/sendToCoveralls', {
+      '@global': true,
+      '@noCallThru': true,
+    });
+
+    // Temporarily replace global fetch
+    const originalFetch = global.fetch;
+    global.fetch = mockFetch;
+
+    const object = { some: 'obj' };
+
+    sendToCoverallsMocked(object, (err, response) => {
+      global.fetch = originalFetch;
+      should.exist(err);
+      err.message.should.equal('Connection refused');
+      should.not.exist(response);
+      done();
+    });
+  });
+
+  it('when fetch throws error without "fetch failed" message, returns original', done => {
+    const proxyquire = require('proxyquire');
+    const customError = new Error('Custom network error');
+
+    const mockFetch = async () => {
+      throw customError;
+    };
+
+    const sendToCoverallsMocked = proxyquire('../lib/sendToCoveralls', {
+      '@global': true,
+      '@noCallThru': true,
+    });
+
+    // Temporarily replace global fetch
+    const originalFetch = global.fetch;
+    global.fetch = mockFetch;
+
+    const object = { some: 'obj' };
+
+    sendToCoverallsMocked(object, (err, response) => {
+      global.fetch = originalFetch;
+      should.exist(err);
+      err.message.should.equal('Custom network error');
+      should.not.exist(response);
+      done();
     });
   });
 });

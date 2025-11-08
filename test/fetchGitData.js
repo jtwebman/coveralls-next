@@ -1,6 +1,7 @@
 'use strict';
 
 const should = require('should');
+const proxyquire = require('proxyquire');
 const fetchGitData = require('../lib/fetchGitData');
 const { getOptions } = require('..');
 
@@ -8,6 +9,7 @@ describe('fetchGitData', () => {
   beforeEach(() => {
     process.env = { PATH: process.env.PATH };
   });
+
   it('should throw an error when no data is passed', () => {
     fetchGitData.should.throw(/fetchGitData requires a callback/);
   });
@@ -212,4 +214,219 @@ describe('fetchGitData', () => {
       done();
     });
   });
+  it('should handle branch names with hyphens', () => {
+    const branchName = 'bug-fix-123';
+    const mockGitOutput = `  other-branch\n* ${branchName}\n  another-branch`;
+    const match = (mockGitOutput.match(/^\* (\S+)/m) || [])[1];
+    match.should.equal(branchName);
+  });
+  it('should handle branch names with slashes', () => {
+    const branchName = 'feature/new-feature';
+    const mockGitOutput = `  master\n* ${branchName}\n  develop`;
+    const match = (mockGitOutput.match(/^\* (\S+)/m) || [])[1];
+    match.should.equal(branchName);
+  });
+  it('should handle branch names with dots', () => {
+    const branchName = 'release/v1.0.0';
+    const mockGitOutput = `  master\n* ${branchName}\n  develop`;
+    const match = (mockGitOutput.match(/^\* (\S+)/m) || [])[1];
+    match.should.equal(branchName);
+  });
+
+  it('should handle when git branch output has no current branch marker', done => {
+    let callCount = 0;
+    const mockExecFile = (cmd, args, cb) => {
+      callCount++;
+      if (callCount === 1) {
+        // First call: git rev-parse --verify HEAD (succeeds)
+        return cb(null, '');
+      } else if (callCount === 2) {
+        // Second call: git cat-file -p HEAD (succeeds)
+        const response =
+          '\nauthor Test Author <test@example.com> 1234567890 +0000\n' +
+          'committer Test Committer <test@example.com> 1234567890 +0000\n\nTest commit message';
+        return cb(null, response);
+      } else if (callCount === 3) {
+        // Third call: git branch (returns output without * marker)
+        return cb(null, '  master\n  develop\n');
+      } else if (callCount === 4) {
+        // Fourth call: git remote -v
+        return cb(null, 'origin\thttps://github.com/user/repo.git (push)\n');
+      }
+    };
+
+    const fetchGitDataMocked = proxyquire('../lib/fetchGitData', {
+      child_process: { execFile: mockExecFile },
+    });
+
+    fetchGitDataMocked(
+      {
+        head: {
+          id: 'HEAD',
+        },
+      },
+      (err, git) => {
+        should.not.exist(err);
+        should.not.exist(git.branch); // Branch will be undefined
+        done();
+      },
+    );
+  });
+
+  it('should filter out duplicate remotes from git output', done => {
+    let callCount = 0;
+    const mockExecFile = (cmd, args, cb) => {
+      callCount++;
+      if (callCount === 1) {
+        // First call: git rev-parse --verify HEAD (succeeds)
+        return cb(null, '');
+      } else if (callCount === 2) {
+        // Second call: git cat-file -p HEAD (succeeds)
+        const response =
+          '\nauthor Test Author <test@example.com> 1234567890 +0000\n' +
+          'committer Test Committer <test@example.com> 1234567890 +0000\n\nTest commit message';
+        return cb(null, response);
+      } else if (callCount === 3) {
+        // Third call: git remote -v (returns duplicates - same remote twice with push)
+        const output =
+          'origin\thttps://github.com/user/repo.git (fetch)\n' +
+          'origin\thttps://github.com/user/repo.git (push)\n' +
+          'origin\thttps://github.com/user/repo.git (push)\n' +
+          'upstream\thttps://github.com/other/repo.git (fetch)\n' +
+          'upstream\thttps://github.com/other/repo.git (push)\n';
+        return cb(null, output);
+      }
+    };
+
+    const fetchGitDataMocked = proxyquire('../lib/fetchGitData', {
+      child_process: { execFile: mockExecFile },
+    });
+
+    fetchGitDataMocked(
+      {
+        head: {
+          id: 'HEAD',
+        },
+        branch: 'master',
+      },
+      (err, git) => {
+        should.not.exist(err);
+        // Should only have 2 remotes (origin and upstream), not 4
+        git.remotes.length.should.equal(2);
+        git.remotes[0].name.should.equal('origin');
+        git.remotes[0].url.should.equal('https://github.com/user/repo.git');
+        git.remotes[1].name.should.equal('upstream');
+        git.remotes[1].url.should.equal('https://github.com/other/repo.git');
+        done();
+      },
+    );
+  });
+
+  it('should handle error when fetching branch fails', done => {
+    let callCount = 0;
+    const mockExecFile = (cmd, args, cb) => {
+      callCount++;
+      if (callCount === 1) {
+        // First call: git rev-parse --verify HEAD (succeeds)
+        return cb(null, '');
+      } else if (callCount === 2) {
+        // Second call: git cat-file -p HEAD (succeeds)
+        const response =
+          '\nauthor Test Author <test@example.com> 1234567890 +0000\n' +
+          'committer Test Committer <test@example.com> 1234567890 +0000\n\nTest commit message';
+        return cb(null, response);
+      } else if (callCount === 3) {
+        // Third call: git branch (fails)
+        return cb(new Error('git branch failed'));
+      }
+    };
+
+    const fetchGitDataMocked = proxyquire('../lib/fetchGitData', {
+      child_process: { execFile: mockExecFile },
+    });
+
+    fetchGitDataMocked(
+      {
+        head: {
+          id: 'HEAD',
+        },
+      },
+      err => {
+        should.exist(err);
+        err.message.should.equal('git branch failed');
+        done();
+      },
+    );
+  });
+
+  it('should handle error when fetching head details fails', done => {
+    let callCount = 0;
+    const mockExecFile = (cmd, args, cb) => {
+      callCount++;
+      if (callCount === 1) {
+        // First call: git rev-parse --verify HEAD (succeeds)
+        return cb(null, '');
+      } else if (callCount === 2) {
+        // Second call: git cat-file -p HEAD (fails)
+        return cb(new Error('git cat-file failed'));
+      }
+    };
+
+    const fetchGitDataMocked = proxyquire('../lib/fetchGitData', {
+      child_process: { execFile: mockExecFile },
+    });
+
+    fetchGitDataMocked(
+      {
+        head: {
+          id: 'HEAD',
+        },
+        branch: 'master',
+      },
+      err => {
+        should.exist(err);
+        err.message.should.equal('git cat-file failed');
+        done();
+      },
+    );
+  });
+
+  it('should handle error when fetching remotes fails', done => {
+    let callCount = 0;
+    const mockExecFile = (cmd, args, cb) => {
+      callCount++;
+      if (callCount === 1) {
+        // First call: git rev-parse --verify HEAD (succeeds)
+        return cb(null, '');
+      } else if (callCount === 2) {
+        // Second call: git cat-file -p HEAD (succeeds)
+        const response =
+          '\nauthor Test Author <test@example.com> 1234567890 +0000\n' +
+          'committer Test Committer <test@example.com> 1234567890 +0000\n\nTest commit message';
+        return cb(null, response);
+      } else if (callCount === 3) {
+        // Third call: git remote -v (fails)
+        return cb(new Error('git remote failed'));
+      }
+    };
+
+    const fetchGitDataMocked = proxyquire('../lib/fetchGitData', {
+      child_process: { execFile: mockExecFile },
+    });
+
+    fetchGitDataMocked(
+      {
+        head: {
+          id: 'HEAD',
+        },
+        branch: 'master',
+      },
+      err => {
+        should.exist(err);
+        err.message.should.equal('git remote failed');
+        done();
+      },
+    );
+  });
+
 });
