@@ -2,9 +2,17 @@
 
 [![Build Status][ci-image]][ci-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
-This is just a fork of [coveralls](https://github.com/nickmerwin/node-coveralls) with updated dependencies. It replaces the deprecated [request](https://github.com/request/request) library with native Node.js `fetch()` and `FormData` APIs (available in Node 20+). It also replaces [xo](https://github.com/xojs/xo) with eslint and prettier with google settings as xo used a bunch of deprecated dependencies.
+A modern, actively maintained rewrite of the [original coveralls](https://github.com/nickmerwin/node-coveralls) library for Node.js. Built for Node.js 20+ with modern dependencies and improved reliability.
 
-[Coveralls.io](https://coveralls.io/) support for Node.js. Get the great coverage reporting of coveralls.io and add a cool coverage button (like the one above) to your README.
+**What's New:**
+- ✨ Uses native Node.js `fetch()` and `FormData` APIs (no deprecated dependencies)
+- 🔒 100% test coverage with comprehensive test suite
+- 🚀 Modern tooling with ESLint and Prettier
+- 📦 Zero security vulnerabilities
+- 🔧 Active maintenance and bug fixes
+- 📖 Comprehensive documentation and contribution guidelines
+
+Get the great coverage reporting of [Coveralls.io](https://coveralls.io/) and add a cool coverage badge (like the one above) to your README.
 
 ## Supported CI services:
 
@@ -175,11 +183,145 @@ If you're running locally, you must have a `.coveralls.yml` file, as documented 
 
 If you want to send commit data to coveralls, you can set the `COVERALLS_GIT_COMMIT` environment-variable to the commit hash you wish to reference. If you don't want to use a hash, you can set it to `HEAD` to supply coveralls with the latest commit data. This requires git to be installed and executable on the current PATH.
 
+## Migrating from node-coveralls
+
+Switching from the original `node-coveralls` package is straightforward:
+
+1. **Update your package.json**:
+   ```bash
+   npm uninstall coveralls
+   npm install coveralls-next --save-dev
+   ```
+
+2. **Update your scripts** - The command-line interface is identical:
+   ```json
+   {
+     "scripts": {
+       "coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
+     }
+   }
+   ```
+   Just works! No changes needed.
+
+3. **Update CI configuration** - If you reference the binary path directly:
+   ```yaml
+   # Before
+   - ./node_modules/coveralls/bin/coveralls.js < coverage/lcov.info
+
+   # After
+   - ./node_modules/coveralls-next/bin/coveralls.js < coverage/lcov.info
+
+   # Or use npx (recommended)
+   - npx coveralls-next < coverage/lcov.info
+   ```
+
+4. **Node.js version requirement**: Ensure you're running Node.js 20 or higher (for native fetch support)
+
+That's it! All environment variables, flags, and configuration files remain compatible.
+
+## Troubleshooting
+
+### Common Issues
+
+#### "Bad response: 422 Unprocessable Entity"
+
+This usually means the coverage data format is incorrect or incomplete. Common causes:
+
+- **Missing git information**: Ensure git is installed and your directory is a git repository
+- **Missing repo token**: Set `COVERALLS_REPO_TOKEN` environment variable or create `.coveralls.yml`
+- **Detached HEAD state**: Some CI environments checkout in detached HEAD state, set `COVERALLS_GIT_BRANCH` explicitly
+
+**Solution**:
+```bash
+# Enable debug logging to see what's being sent
+NODE_COVERALLS_DEBUG=1 coveralls < coverage/lcov.info
+
+# Or use --verbose flag
+coveralls --verbose < coverage/lcov.info
+```
+
+#### "Cannot find module" or import errors
+
+**Cause**: Package not installed or wrong Node.js version
+
+**Solution**:
+```bash
+# Check Node.js version (must be 20+)
+node --version
+
+# Reinstall dependencies
+rm -rf node_modules package-lock.json
+npm install
+```
+
+#### No coverage being reported
+
+**Cause**: Coverage file not being generated or piped correctly
+
+**Solution**:
+```bash
+# Verify coverage file exists and has content
+cat coverage/lcov.info
+
+# Test with --stdout to see what would be sent
+coveralls --stdout < coverage/lcov.info
+
+# Check your test command generates lcov format
+nyc report --reporter=text-lcov
+```
+
+#### Git branch not detected correctly
+
+**Cause**: Detached HEAD state in CI or missing git data
+
+**Solution**:
+```bash
+# Explicitly set branch in CI
+export COVERALLS_GIT_BRANCH=${CIRCLE_BRANCH}  # CircleCI
+export COVERALLS_GIT_BRANCH=${CI_COMMIT_BRANCH}  # GitLab
+export COVERALLS_GIT_BRANCH=${GITHUB_REF##*/}  # GitHub Actions
+```
+
+#### Enterprise/Self-hosted Coveralls instance
+
+**Cause**: Default endpoint points to coveralls.io
+
+**Solution**:
+```bash
+# Set custom endpoint
+export COVERALLS_ENDPOINT=https://your-coveralls-instance.com
+```
+
+### Getting Help
+
+1. **Enable debug logging**: Use `-v` or `--verbose` flag, or set `NODE_COVERALLS_DEBUG=1`
+2. **Check the output**: Use `--stdout` to see the exact JSON payload being sent
+3. **Verify environment**: Ensure all required environment variables are set
+4. **Review CI logs**: Look for error messages or missing git data warnings
+5. **Open an issue**: If stuck, [open an issue](https://github.com/jtwebman/coveralls-next/issues) with:
+   - Your Node.js version (`node --version`)
+   - CI service being used
+   - Relevant configuration files
+   - Debug output (`--verbose` or `NODE_COVERALLS_DEBUG=1`)
+
 ## Contributing
 
-I generally don't accept pull requests that are untested or break the build, because I'd like to keep the quality high (this is a coverage tool after all!).
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
 
-I also don't care for "soft-versioning" or "optimistic versioning" (dependencies that have ^, x, > in them, or anything other than numbers and dots). There have been too many problems with bad semantic versioning in dependencies, and I'd rather have a solid library than a bleeding-edge one.
+- Development setup and workflow
+- Code style and testing requirements
+- Submitting pull requests
+- Reporting issues
+
+### Quick Guidelines
+
+- All code must have tests and maintain 100% coverage
+- Follow the existing code style (enforced by ESLint)
+- Use exact dependency versions (no ^, ~, or other range operators)
+- Write clear commit messages following conventional commit format
+- Update documentation for new features or behavior changes
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for complete details.
 
 
 [ci-image]: https://github.com/jtwebman/coveralls-next/workflows/Tests/badge.svg

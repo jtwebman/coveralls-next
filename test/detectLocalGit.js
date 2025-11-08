@@ -29,6 +29,18 @@ describe('detectLocalGit', () => {
       git_branch: 'master',
     });
   });
+
+  it('should return undefined when git HEAD cannot be read', () => {
+    const originalReadFileSync = fs.readFileSync;
+    fs.readFileSync = () => {
+      throw new Error('Permission denied');
+    };
+
+    const results = detectLocalGit();
+    fs.readFileSync = originalReadFileSync;
+
+    should.not.exist(results);
+  });
 });
 
 function _makeTemporaryGitDir() {

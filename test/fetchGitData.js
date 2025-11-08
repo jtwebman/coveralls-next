@@ -471,4 +471,36 @@ describe('fetchGitData', () => {
     );
   });
 
+  it('should handle malformed git cat-file output', done => {
+    let callCount = 0;
+    const mockExecFile = (cmd, args, cb) => {
+      callCount++;
+      if (callCount === 1) {
+        // First call: git rev-parse --verify HEAD (succeeds)
+        return cb(null, '');
+      } else if (callCount === 2) {
+        // Second call: git cat-file -p HEAD (returns malformed output)
+        return cb(null, 'malformed output without proper commit format');
+      }
+    };
+
+    const fetchGitDataMocked = proxyquire('../lib/fetchGitData', {
+      child_process: { execFile: mockExecFile },
+    });
+
+    fetchGitDataMocked(
+      {
+        head: {
+          id: 'HEAD',
+        },
+        branch: 'master',
+      },
+      err => {
+        should.exist(err);
+        err.message.should.equal('Unable to parse commit details from git cat-file output');
+        done();
+      },
+    );
+  });
+
 });
