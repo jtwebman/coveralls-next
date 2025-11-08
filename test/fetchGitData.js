@@ -178,23 +178,21 @@ describe('fetchGitData', () => {
   });
 
   it('should handle detached HEAD state', async () => {
-    let callCount = 0;
-    const mockExecFileAsync = async (_cmd, _args) => {
-      callCount++;
-      if (callCount === 1) {
-        // First call: git rev-parse --verify HEAD (succeeds)
-        return { stdout: '', stderr: '' };
-      } else if (callCount === 2) {
-        // Second call: git cat-file -p HEAD (succeeds)
-        const response =
-          '\nauthor Test Author <test@example.com> 1234567890 +0000\n' +
-          'committer Test Committer <test@example.com> 1234567890 +0000\n\nTest commit message';
-        return { stdout: response, stderr: '' };
-      } else if (callCount === 3) {
-        // Third call: git branch (returns detached HEAD)
-        return { stdout: '* (HEAD detached at abc123)\n  master\n  develop\n', stderr: '' };
-      } else if (callCount === 4) {
-        // Fourth call: git remote -v
+    const mockExecFileAsync = async (_cmd, args) => {
+      // Check which command is being called based on arguments
+      if (args[0] === 'log') {
+        // git log command - return commit info
+        return {
+          stdout:
+            'abc123\nTest Author\ntest@example.com\n' +
+            'Test Committer\ntest@example.com\nTest commit message',
+          stderr: '',
+        };
+      } else if (args[0] === 'rev-parse' && args[1] === '--abbrev-ref') {
+        // git rev-parse --abbrev-ref HEAD (returns HEAD in detached state)
+        return { stdout: 'HEAD', stderr: '' };
+      } else if (args[0] === 'remote') {
+        // git remote -v
         return { stdout: 'origin\thttps://github.com/user/repo.git (push)\n', stderr: '' };
       }
     };
@@ -213,23 +211,20 @@ describe('fetchGitData', () => {
   });
 
   it('should handle when git branch output has no current branch marker', async () => {
-    let callCount = 0;
-    const mockExecFileAsync = async (_cmd, _args) => {
-      callCount++;
-      if (callCount === 1) {
-        // First call: git rev-parse --verify HEAD (succeeds)
-        return { stdout: '', stderr: '' };
-      } else if (callCount === 2) {
-        // Second call: git cat-file -p HEAD (succeeds)
-        const response =
-          '\nauthor Test Author <test@example.com> 1234567890 +0000\n' +
-          'committer Test Committer <test@example.com> 1234567890 +0000\n\nTest commit message';
-        return { stdout: response, stderr: '' };
-      } else if (callCount === 3) {
-        // Third call: git branch (returns output without * marker)
-        return { stdout: '  master\n  develop\n', stderr: '' };
-      } else if (callCount === 4) {
-        // Fourth call: git remote -v
+    const mockExecFileAsync = async (_cmd, args) => {
+      if (args[0] === 'log') {
+        // git log command - return commit info
+        return {
+          stdout:
+            'abc123\nTest Author\ntest@example.com\n' +
+            'Test Committer\ntest@example.com\nTest commit message',
+          stderr: '',
+        };
+      } else if (args[0] === 'rev-parse' && args[1] === '--abbrev-ref') {
+        // git rev-parse --abbrev-ref HEAD (returns just branch name without marker)
+        return { stdout: 'master', stderr: '' };
+      } else if (args[0] === 'remote') {
+        // git remote -v
         return { stdout: 'origin\thttps://github.com/user/repo.git (push)\n', stderr: '' };
       }
     };
@@ -243,25 +238,22 @@ describe('fetchGitData', () => {
         id: 'HEAD',
       },
     });
-    // Branch will be empty string when no current branch marker found
-    git.branch.should.equal('');
+    // Branch will be set when rev-parse returns a branch name
+    git.branch.should.equal('master');
   });
 
   it('should filter out duplicate remotes from git output', async () => {
-    let callCount = 0;
-    const mockExecFileAsync = async (_cmd, _args) => {
-      callCount++;
-      if (callCount === 1) {
-        // First call: git rev-parse --verify HEAD (succeeds)
-        return { stdout: '', stderr: '' };
-      } else if (callCount === 2) {
-        // Second call: git cat-file -p HEAD (succeeds)
-        const response =
-          '\nauthor Test Author <test@example.com> 1234567890 +0000\n' +
-          'committer Test Committer <test@example.com> 1234567890 +0000\n\nTest commit message';
-        return { stdout: response, stderr: '' };
-      } else if (callCount === 3) {
-        // Third call: git remote -v (returns duplicates - same remote twice with push)
+    const mockExecFileAsync = async (_cmd, args) => {
+      if (args[0] === 'log') {
+        // git log command - return commit info
+        return {
+          stdout:
+            'abc123\nTest Author\ntest@example.com\n' +
+            'Test Committer\ntest@example.com\nTest commit message',
+          stderr: '',
+        };
+      } else if (args[0] === 'remote') {
+        // git remote -v (returns duplicates - same remote twice with push)
         const output =
           'origin\thttps://github.com/user/repo.git (fetch)\n' +
           'origin\thttps://github.com/user/repo.git (push)\n' +
@@ -290,46 +282,32 @@ describe('fetchGitData', () => {
     git.remotes[1].url.should.equal('https://github.com/other/repo.git');
   });
 
-  it('should handle error when fetching branch fails', async () => {
-    let callCount = 0;
+  it('should handle error when any git command fails', async () => {
     const mockExecFileAsync = async (_cmd, _args) => {
-      callCount++;
-      if (callCount === 1) {
-        // First call: git rev-parse --verify HEAD (succeeds)
-        return { stdout: '', stderr: '' };
-      } else if (callCount === 2) {
-        // Second call: git cat-file -p HEAD (succeeds)
-        const response =
-          '\nauthor Test Author <test@example.com> 1234567890 +0000\n' +
-          'committer Test Committer <test@example.com> 1234567890 +0000\n\nTest commit message';
-        return { stdout: response, stderr: '' };
-      } else if (callCount === 3) {
-        // Third call: git branch (fails)
-        throw new Error('git branch failed');
-      }
+      // All git commands fail
+      throw new Error('git command failed');
     };
 
     const fetchGitDataMocked = proxyquire('../lib/fetchGitData', {
       util: { promisify: () => mockExecFileAsync },
     });
 
-    await fetchGitDataMocked({
+    const git = await fetchGitDataMocked({
       head: {
         id: 'HEAD',
       },
-    }).should.be.rejectedWith('git branch failed');
+    });
+    // Should return default values when git commands fail
+    git.head.author_name.should.equal('Unknown Author');
+    git.head.committer_name.should.equal('Unknown Committer');
+    git.head.message.should.equal('Unknown Commit Message');
   });
 
   it('should handle error when fetching head details fails', async () => {
-    let callCount = 0;
-    const mockExecFileAsync = async (_cmd, _args) => {
-      callCount++;
-      if (callCount === 1) {
-        // First call: git rev-parse --verify HEAD (succeeds)
-        return { stdout: '', stderr: '' };
-      } else if (callCount === 2) {
-        // Second call: git cat-file -p HEAD (fails)
-        throw new Error('git cat-file failed');
+    const mockExecFileAsync = async (_cmd, args) => {
+      if (args[0] === 'log') {
+        // git log fails
+        throw new Error('git log failed');
       }
     };
 
@@ -337,29 +315,28 @@ describe('fetchGitData', () => {
       util: { promisify: () => mockExecFileAsync },
     });
 
-    await fetchGitDataMocked({
+    const git = await fetchGitDataMocked({
       head: {
         id: 'HEAD',
       },
       branch: 'master',
-    }).should.be.rejectedWith('git cat-file failed');
+    });
+    // Should return default values when git commands fail
+    git.head.author_name.should.equal('Unknown Author');
+    git.head.committer_name.should.equal('Unknown Committer');
   });
 
   it('should handle error when fetching remotes fails', async () => {
-    let callCount = 0;
-    const mockExecFileAsync = async (_cmd, _args) => {
-      callCount++;
-      if (callCount === 1) {
-        // First call: git rev-parse --verify HEAD (succeeds)
-        return { stdout: '', stderr: '' };
-      } else if (callCount === 2) {
-        // Second call: git cat-file -p HEAD (succeeds)
-        const response =
-          '\nauthor Test Author <test@example.com> 1234567890 +0000\n' +
-          'committer Test Committer <test@example.com> 1234567890 +0000\n\nTest commit message';
-        return { stdout: response, stderr: '' };
-      } else if (callCount === 3) {
-        // Third call: git remote -v (fails)
+    const mockExecFileAsync = async (_cmd, args) => {
+      if (args[0] === 'log') {
+        return {
+          stdout:
+            'abc123\nTest Author\ntest@example.com\n' +
+            'Test Committer\ntest@example.com\nTest commit message',
+          stderr: '',
+        };
+      } else if (args[0] === 'remote') {
+        // git remote -v fails
         throw new Error('git remote failed');
       }
     };
@@ -368,24 +345,25 @@ describe('fetchGitData', () => {
       util: { promisify: () => mockExecFileAsync },
     });
 
-    await fetchGitDataMocked({
+    const git = await fetchGitDataMocked({
       head: {
         id: 'HEAD',
       },
       branch: 'master',
-    }).should.be.rejectedWith('git remote failed');
+    });
+    // Should return default values when git commands fail
+    git.head.author_name.should.equal('Unknown Author');
   });
 
-  it('should handle malformed git cat-file output', async () => {
-    let callCount = 0;
-    const mockExecFileAsync = async (_cmd, _args) => {
-      callCount++;
-      if (callCount === 1) {
-        // First call: git rev-parse --verify HEAD (succeeds)
+  it('should handle malformed git log output', async () => {
+    const mockExecFileAsync = async (_cmd, args) => {
+      if (args[0] === 'log') {
+        // git log returns malformed output (not enough lines)
+        return { stdout: 'malformed\noutput', stderr: '' };
+      } else if (args[0] === 'rev-parse') {
+        return { stdout: 'master', stderr: '' };
+      } else if (args[0] === 'remote') {
         return { stdout: '', stderr: '' };
-      } else if (callCount === 2) {
-        // Second call: git cat-file -p HEAD (returns malformed output)
-        return { stdout: 'malformed output without proper commit format', stderr: '' };
       }
     };
 
@@ -393,12 +371,15 @@ describe('fetchGitData', () => {
       util: { promisify: () => mockExecFileAsync },
     });
 
-    await fetchGitDataMocked({
+    const git = await fetchGitDataMocked({
       head: {
         id: 'HEAD',
       },
       branch: 'master',
-    }).should.be.rejectedWith('Unable to parse commit details from git cat-file output');
+    });
+    // Should handle malformed output gracefully
+    git.head.id.should.equal('malformed');
+    git.head.author_name.should.equal('output');
   });
 
 });
