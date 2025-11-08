@@ -54,7 +54,8 @@ describe('handleInput', () => {
     const path = sysPath.join(__dirname, './fixtures/onefile.lcov');
     const input = fs.readFileSync(path, 'utf8');
     index.handleInput(input, err => {
-      err.should.equal('Bad response: 500 body');
+      err.should.be.an.Error();
+      err.message.should.equal('Bad response: 500 body');
       done();
     });
   });
