@@ -1,7 +1,7 @@
 {
   "name": "coveralls-next",
   "description": "takes json-cov output into stdin and POSTs to coveralls.io",
-  "version": "5.0.1",
+  "version": "6.0.0",
   "keywords": [
     "coverage",
     "coveralls"
@@ -65,7 +65,7 @@
     "undici": "7.16.0"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "files": [
     "bin/coveralls.js",
