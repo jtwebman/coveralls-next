@@ -2,25 +2,28 @@
 
 [![Build Status][ci-image]][ci-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
-This is just a fork of [coveralls](https://github.com/nickmerwin/node-coveralls) with updated dependencies and replace [request](https://github.com/request/request) which is deprecated with [form-data](https://www.npmjs.com/package/form-data) and to now native Node fetch. I also replace [xo](https://github.com/xojs/xo) with eslint and prettier with google settings as it also used a bunch of deprecated dependencies.
+This is just a fork of [coveralls](https://github.com/nickmerwin/node-coveralls) with updated dependencies. It replaces the deprecated [request](https://github.com/request/request) library with native Node.js `fetch()` and `FormData` APIs (available in Node 20+). It also replaces [xo](https://github.com/xojs/xo) with eslint and prettier with google settings as xo used a bunch of deprecated dependencies.
 
 [Coveralls.io](https://coveralls.io/) support for Node.js. Get the great coverage reporting of coveralls.io and add a cool coverage button (like the one above) to your README.
 
 ## Supported CI services:
 
-* [Travis CI](https://travis-ci.org/)
-* [CodeShip](https://codeship.com/)
+* [GitHub Actions](https://github.com/features/actions)
 * [CircleCI](https://circleci.com/)
+* [GitLab CI](https://gitlab.com/)
 * [Jenkins](https://jenkins.io/)
-* [Gitlab CI](https://gitlab.com/)
-* [AppVeyor](https://www.appveyor.com/)
+* [Azure Pipelines](https://azure.microsoft.com/en-us/products/devops/pipelines/)
 * [Buildkite](https://buildkite.com/)
-* [GitHub Actions CI](https://github.com/features/actions)
-* [CodeFresh](https://codefresh.io/)
+* [Travis CI](https://travis-ci.org/)
+* [Semaphore](https://semaphoreci.com/)
+* [Drone](https://www.drone.io/)
+* [AppVeyor](https://www.appveyor.com/)
+* [Codefresh](https://codefresh.io/)
+* [CodeShip](https://codeship.com/)* - _being sunset by CloudBees_
 
 ## Installation:
 
-Add the latest version of `coveralls` to your package.json:
+Add the latest version of `coveralls-next` to your package.json:
 
 ```shell
 npm install coveralls-next --save-dev
@@ -36,7 +39,7 @@ npm install mocha-lcov-reporter --save-dev
 
 This script `bin/coveralls.js` can take standard input from any tool that emits the lcov data format (including [mocha](https://mochajs.org/)'s [LCOV reporter](https://npmjs.org/package/mocha-lcov-reporter)) and send it to coveralls.io to report your code coverage there.
 
-Once your app is instrumented for coverage, and building, you need to pipe the lcov output to `./node_modules/coveralls/bin/coveralls.js`.
+Once your app is instrumented for coverage, and building, you need to pipe the lcov output to `coveralls` (or `./node_modules/coveralls-next/bin/coveralls.js` if using the direct path).
 
 This library currently supports [Travis CI](https://travis-ci.org/) with no extra effort beyond piping the lcov output to coveralls. However, if you're using a different build system, there are a few **necessary** environment variables:
 
@@ -52,14 +55,18 @@ There are optional environment variables for other build systems as well:
 - `COVERALLS_SERVICE_JOB_NUMBER` (a number that uniquely identifies the build's job)
 - `COVERALLS_RUN_AT` (a date string for the time that the job ran. RFC 3339 dates work. This defaults to your build system's date/time if you don't set it)
 - `COVERALLS_PARALLEL` (set to `true` when running jobs in parallel, requires a completion webhook. More info here: <https://docs.coveralls.io/parallel-build-webhook>)
+- `COVERALLS_ENDPOINT` (overrides the default Coveralls API endpoint. Useful for enterprise or self-hosted instances. Defaults to `https://coveralls.io`)
+- `NODE_COVERALLS_DEBUG` (set to `1` to enable debug-level logging. Alternative to using the `-v` or `--verbose` flag)
 
 ### GitHub Actions CI
 
-If you use this then there is no reason to have coveralls or coveralls-next library in your package as it has it's own npm version in the step. This doesn't use this library but the original coveralls npm package which will work just the same.
+GitHub Actions users have two options:
 
-If you are using GitHub Actions CI, you should look into [coverallsapp/github-action](https://github.com/coverallsapp/github-action).
+1. **Use the official GitHub Action** (recommended for simplicity): [coverallsapp/github-action](https://github.com/coverallsapp/github-action) - This is the easiest approach and doesn't require adding this library to your dependencies.
 
-Parallel runs example [workflow.yml](https://github.com/coverallsapp/coveralls-node-demo/blob/master/.github/workflows/workflow.yml)
+2. **Use this library directly** (more control): Install `coveralls-next` and pipe your coverage data to it in your workflow, just like you would in any other CI environment. This approach gives you more flexibility in how you configure and run coverage reporting.
+
+See this project's own [workflow](.github/workflows/test.yml) for an example of using `coveralls-next` directly in GitHub Actions, or check out the [parallel runs example](https://github.com/coverallsapp/coveralls-node-demo/blob/master/.github/workflows/workflow.yml) using the official action.
 
 ### [CircleCI Orb](https://circleci.com/)
 
@@ -84,82 +91,50 @@ Parallel jobs example: [.travis.yml](https://github.com/coverallsapp/coveralls-n
 
 Check out an example [here](https://github.com/Ethan-Arrowood/harperdb-connect/blob/master/.travis.yml) which makes use of Travis CI build stages
 
-### [Mocha](https://mochajs.org/) + [Blanket.js](https://github.com/alex-seville/blanket)
+### [Vitest](https://vitest.dev/)
 
-- Install [blanket.js](https://github.com/alex-seville/blanket)
-- Configure blanket according to [docs](https://github.com/alex-seville/blanket/blob/master/docs/getting_started_node.md).
-- Run your tests with a command like this:
-
-  ```sh
-  NODE_ENV=test YOURPACKAGE_COVERAGE=1 ./node_modules/.bin/mocha \
-    --require blanket \
-    --reporter mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js
-  ```
-
-### [Mocha](https://mochajs.org/) + [JSCoverage](https://github.com/fishbar/jscoverage)
-
-Instrumenting your app for coverage is probably harder than it needs to be (read [here](http://seejohncode.com/2012/03/13/setting-up-mocha-jscoverage/)), but that's also a necessary step.
-
-In mocha, if you've got your code instrumented for coverage, the command for a Travis CI build would look something like this:
+[Vitest](https://vitest.dev/) is a modern test framework powered by Vite with built-in coverage support:
 
 ```sh
-YOURPACKAGE_COVERAGE=1 ./node_modules/.bin/mocha test -R mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js
+vitest run --coverage.enabled --coverage.reporter=lcov && coveralls < coverage/lcov.info
 ```
 
-Check out an example [Makefile](https://github.com/cainus/urlgrey/blob/master/Makefile) from one of my projects for an example, especially the test-coveralls build target. Note: Travis CI runs `npm test`, so whatever target you create in your Makefile must be the target that `npm test` runs (This is set in package.json's `scripts` property).
+Or configure coverage in `vitest.config.ts`:
 
-### [Istanbul](https://github.com/gotwarlost/istanbul)
-
-#### With Mocha:
-
-```sh
-istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage
-```
-
-#### With Jasmine:
-
-```sh
-istanbul cover jasmine-node --captureExceptions spec/ && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage
-```
-
-### [Nodeunit](https://github.com/caolan/nodeunit) + [JSCoverage](https://github.com/fishbar/jscoverage)
-
-Depend on nodeunit, jscoverage, and coveralls:
-
-```sh
-npm install nodeunit jscoverage coveralls-next --save-dev
-```
-
-Add a coveralls script to "scripts" in your `package.json`:
-
-```json
-"scripts": {
-  "test": "nodeunit test",
-  "coveralls": "jscoverage lib && YOURPACKAGE_COVERAGE=1 nodeunit --reporter=lcov test | coveralls"
+```ts
+export default {
+  test: {
+    coverage: {
+      provider: 'v8', // or 'istanbul'
+      reporter: ['lcov', 'text']
+    }
+  }
 }
 ```
 
-Ensure your app requires instrumented code when `process.env.YOURPACKAGE_COVERAGE` variable is defined.
+Then run: `vitest run --coverage && coveralls < coverage/lcov.info`
 
-Run your tests with a command like this:
+### [Mocha](https://mochajs.org/)
+
+[Mocha](https://mochajs.org/) with [nyc](https://github.com/istanbuljs/nyc) for coverage:
 
 ```sh
-npm run coveralls
+nyc mocha && nyc report --reporter=text-lcov | coveralls
 ```
 
-For detailed instructions on requiring instrumented code, running on Travis CI and submitting to coveralls [see this guide](https://github.com/alanshaw/nodeunit-lcov-coveralls-example).
+Or with [c8](https://github.com/bcoe/c8) (modern native V8 coverage):
 
-### [Poncho](https://github.com/deepsweet/poncho)
+```sh
+c8 mocha && c8 report --reporter=lcov && coveralls < coverage/lcov.info
+```
 
-Client-side JS code coverage using [PhantomJS](https://github.com/ariya/phantomjs), [Mocha](https://mochajs.org/) and [Blanket](https://github.com/alex-seville/blanket):
+### [c8](https://github.com/bcoe/c8)
 
-- [Configure](https://mochajs.org/#running-mocha-in-the-browser) Mocha for browser
-- [Mark](https://github.com/deepsweet/poncho#usage) target script(s) with `data-cover` HTML attribute
-- Run your tests with a command like this:
+Modern code coverage using Node's built-in V8 coverage. Works with any test framework:
 
-  ```sh
-  ./node_modules/.bin/poncho -R lcov test/test.html | ./node_modules/coveralls/bin/coveralls.js
-  ```
+```sh
+c8 npm test && c8 report --reporter=lcov && coveralls < coverage/lcov.info
+```
 
 ### [Lab](https://github.com/hapijs/lab)
 
@@ -185,12 +160,13 @@ coverage to coveralls.
 ### Command Line Parameters
 
 ```shell
-Usage: coveralls.js [-v] filepath
+Usage: coveralls.js [-v] [-s] filepath
 ```
 
 #### Optional arguments:
 
-- `-v`, `--verbose`
+- `-v`, `--verbose` - enable verbose/debug logging
+- `-s`, `--stdout` - write the coverage JSON payload to stdout instead of sending to Coveralls (useful for debugging)
 - `filepath` - optionally defines the base filepath of your source files.
 
 ## Running locally
