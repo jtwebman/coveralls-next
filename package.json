@@ -48,8 +48,7 @@
   "dependencies": {
     "js-yaml": "4.1.0",
     "lcov-parse": "1.0.0",
-    "log-driver": "1.2.7",
-    "minimist": "1.2.8"
+    "log-driver": "1.2.7"
   },
   "devDependencies": {
     "eslint": "9.39.1",
