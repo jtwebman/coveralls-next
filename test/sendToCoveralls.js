@@ -1,12 +1,8 @@
 'use strict';
 
 const should = require('should');
-const sinon = require('sinon');
-const logDriver = require('log-driver');
 const { MockAgent, setGlobalDispatcher } = require('undici');
 const index = require('..');
-
-logDriver({ level: false });
 
 describe('sendToCoveralls', () => {
   let realCoverallsHost;
@@ -20,7 +16,6 @@ describe('sendToCoveralls', () => {
   });
 
   afterEach(() => {
-    sinon.restore();
     if (mockAgent) {
       mockAgent.close();
     }
@@ -34,9 +29,9 @@ describe('sendToCoveralls', () => {
     }
   });
 
-  it('passes on the correct params to fetch', done => {
+  it('passes on the correct params to fetch', async () => {
     const object = { some: 'obj' };
-    
+
     const mockPool = mockAgent.get('https://coveralls.io');
     mockPool
       .intercept({
@@ -45,19 +40,12 @@ describe('sendToCoveralls', () => {
       })
       .reply(200, 'response');
 
-    index.sendToCoveralls(object, (err, response) => {
-      try {
-        should(err).be.null();
-        response.statusCode.should.equal(200);
-        response.body.should.equal('response');
-        done();
-      } catch (error) {
-        done(error);
-      }
-    });
+    const response = await index.sendToCoveralls(object);
+    response.statusCode.should.equal(200);
+    response.body.should.equal('response');
   });
 
-  it('when request rejects pass the error to the callback', done => {
+  it('when request rejects pass the error to the callback', async () => {
     const mockPool = mockAgent.get('https://coveralls.io');
     mockPool
       .intercept({
@@ -68,20 +56,12 @@ describe('sendToCoveralls', () => {
 
     const object = { some: 'obj' };
 
-    index.sendToCoveralls(object, (err, response) => {
-      try {
-        err.message.should.equal('test error');
-        should(response).be.undefined();
-        done();
-      } catch (error) {
-        done(error);
-      }
-    });
+    await index.sendToCoveralls(object).should.be.rejectedWith('test error');
   });
 
-  it('allows sending to enterprise url', done => {
+  it('allows sending to enterprise url', async () => {
     process.env.COVERALLS_ENDPOINT = 'https://coveralls-ubuntu.domain.com';
-    
+
     const mockPool = mockAgent.get('https://coveralls-ubuntu.domain.com');
     mockPool
       .intercept({
@@ -92,37 +72,95 @@ describe('sendToCoveralls', () => {
 
     const object = { some: 'obj' };
 
-    index.sendToCoveralls(object, (err, response) => {
-      try {
-        should(err).be.null();
-        response.statusCode.should.equal(200);
-        response.body.should.equal('response');
-        done();
-      } catch (error) {
-        done(error);
-      }
-    });
+    const response = await index.sendToCoveralls(object);
+    response.statusCode.should.equal(200);
+    response.body.should.equal('response');
   });
 
-  it('writes output to stdout when --stdout is passed', done => {
+  it('writes output to stdout when --stdout is passed', async () => {
     const object = { some: 'obj' };
 
     // set up mock process.stdout.write temporarily
     const origStdoutWrite = process.stdout.write;
+    let outputWritten = false;
     process.stdout.write = function (...args) {
       if (args[0] === JSON.stringify(object)) {
+        outputWritten = true;
         process.stdout.write = origStdoutWrite;
-        return done();
+        index.options.stdout = false;
+        return true;
       }
 
-      origStdoutWrite.apply(this, args);
+      return origStdoutWrite.apply(this, args);
     };
 
     index.options.stdout = true;
 
-    index.sendToCoveralls(object, (err, response) => {
-      should.not.exist(err);
-      response.statusCode.should.equal(200);
+    const response = await index.sendToCoveralls(object);
+    should.not.exist(response.error);
+    response.statusCode.should.equal(200);
+    outputWritten.should.be.true();
+  });
+
+  it('when request rejects with error without cause', async () => {
+    const mockPool = mockAgent.get('https://coveralls.io');
+    mockPool
+      .intercept({
+        path: '/api/v1/jobs',
+        method: 'POST',
+      })
+      .replyWithError(new Error('Network error'));
+
+    const object = { some: 'obj' };
+
+    await index.sendToCoveralls(object).should.be.rejectedWith('Network error');
+  });
+
+  it('when fetch throws error with message "fetch failed" and cause, unwraps', async () => {
+    const proxyquire = require('proxyquire');
+    const causeError = new Error('Connection refused');
+    const fetchError = new Error('fetch failed');
+    fetchError.cause = causeError;
+
+    const mockFetch = async () => {
+      throw fetchError;
+    };
+
+    const sendToCoverallsMocked = proxyquire('../lib/sendToCoveralls', {
+      '@global': true,
+      '@noCallThru': true,
     });
+
+    // Temporarily replace global fetch
+    const originalFetch = global.fetch;
+    global.fetch = mockFetch;
+
+    const object = { some: 'obj' };
+
+    await sendToCoverallsMocked(object).should.be.rejectedWith('Connection refused');
+    global.fetch = originalFetch;
+  });
+
+  it('when fetch throws error without "fetch failed" message, returns original', async () => {
+    const proxyquire = require('proxyquire');
+    const customError = new Error('Custom network error');
+
+    const mockFetch = async () => {
+      throw customError;
+    };
+
+    const sendToCoverallsMocked = proxyquire('../lib/sendToCoveralls', {
+      '@global': true,
+      '@noCallThru': true,
+    });
+
+    // Temporarily replace global fetch
+    const originalFetch = global.fetch;
+    global.fetch = mockFetch;
+
+    const object = { some: 'obj' };
+
+    await sendToCoverallsMocked(object).should.be.rejectedWith('Custom network error');
+    global.fetch = originalFetch;
   });
 });

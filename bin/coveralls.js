@@ -13,10 +13,11 @@ process.stdin.on('data', chunk => {
   input += chunk;
 });
 
-process.stdin.on('end', () => {
-  handleInput(input, err => {
-    if (err) {
-      throw err;
-    }
-  });
+process.stdin.on('end', async () => {
+  try {
+    await handleInput(input);
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
 });

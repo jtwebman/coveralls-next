@@ -2,29 +2,23 @@
 
 const fs = require('fs');
 const path = require('path');
-const should = require('should');
-const logDriver = require('log-driver');
+require('should');
 const { convertLcovToCoveralls, getOptions } = require('..');
 
-logDriver({ level: false });
-
 describe('convertLcovToCoveralls', () => {
-  it('should convert a simple lcov file', done => {
+  it('should convert a simple lcov file', async () => {
     delete process.env.TRAVIS;
     const lcovpath = path.join(__dirname, './fixtures/onefile.lcov');
     const input = fs.readFileSync(lcovpath, 'utf8');
     const libpath = path.join(__dirname, './fixtures/lib');
-    convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
-      should.not.exist(err);
-      output.source_files[0].name.should.equal('index.js');
-      output.source_files[0].source.split('\n').length.should.equal(177);
-      output.source_files[0].coverage[54].should.equal(0);
-      output.source_files[0].coverage[60].should.equal(0);
-      done();
-    });
+    const output = await convertLcovToCoveralls(input, { filepath: libpath });
+    output.source_files[0].name.should.equal('index.js');
+    output.source_files[0].source.split('\n').length.should.equal(177);
+    output.source_files[0].coverage[54].should.equal(0);
+    output.source_files[0].coverage[60].should.equal(0);
   });
 
-  it('should pass on all appropriate parameters from the environment', done => {
+  it('should pass on all appropriate parameters from the environment', async () => {
     delete process.env.TRAVIS;
     process.env.COVERALLS_GIT_COMMIT = 'GIT_HASH';
     process.env.COVERALLS_GIT_BRANCH = 'master';
@@ -37,42 +31,34 @@ describe('convertLcovToCoveralls', () => {
     process.env.COVERALLS_PARALLEL = 'true';
     process.env.COVERALLS_FLAG_NAME = 'FLAG_NAME';
 
-    getOptions((err, options) => {
-      const lcovpath = path.join(__dirname, './fixtures/onefile.lcov');
-      const input = fs.readFileSync(lcovpath, 'utf8');
-      const libpath = 'fixtures/lib';
+    const options = await getOptions();
+    const lcovpath = path.join(__dirname, './fixtures/onefile.lcov');
+    const input = fs.readFileSync(lcovpath, 'utf8');
+    const libpath = 'fixtures/lib';
 
-      should.not.exist(err);
-      options.filepath = libpath;
-      convertLcovToCoveralls(input, options, (err, output) => {
-        should.not.exist(err);
-        output.service_name.should.equal('SERVICE_NAME');
-        output.service_number.should.equal('SERVICE_NUMBER');
-        output.service_job_id.should.equal('SERVICE_JOB_ID');
-        output.service_job_number.should.equal('SERVICE_JOB_NUMBER');
-        output.service_pull_request.should.equal('123');
-        output.parallel.should.equal(true);
-        output.flag_name.should.equal('FLAG_NAME');
-        // output.git.should.equal("GIT_HASH");
-        done();
-      });
-    });
+    options.filepath = libpath;
+    const output = await convertLcovToCoveralls(input, options);
+    output.service_name.should.equal('SERVICE_NAME');
+    output.service_number.should.equal('SERVICE_NUMBER');
+    output.service_job_id.should.equal('SERVICE_JOB_ID');
+    output.service_job_number.should.equal('SERVICE_JOB_NUMBER');
+    output.service_pull_request.should.equal('123');
+    output.parallel.should.equal(true);
+    output.flag_name.should.equal('FLAG_NAME');
+    // output.git.should.equal("GIT_HASH");
   });
 
-  it('should work with a relative path as well', done => {
+  it('should work with a relative path as well', async () => {
     delete process.env.TRAVIS;
     const lcovpath = path.join(__dirname, './fixtures/onefile.lcov');
     const input = fs.readFileSync(lcovpath, 'utf8');
     const libpath = 'test/fixtures/lib';
-    convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
-      should.not.exist(err);
-      output.source_files[0].name.should.equal('index.js');
-      output.source_files[0].source.split('\n').length.should.equal(177);
-      done();
-    });
+    const output = await convertLcovToCoveralls(input, { filepath: libpath });
+    output.source_files[0].name.should.equal('index.js');
+    output.source_files[0].source.split('\n').length.should.equal(177);
   });
 
-  it('should convert absolute input paths to relative', done => {
+  it('should convert absolute input paths to relative', async () => {
     delete process.env.TRAVIS;
     const lcovpath = path.join(__dirname, './fixtures/istanbul.lcov');
     const input = fs.readFileSync(lcovpath, 'utf8');
@@ -91,17 +77,14 @@ describe('convertLcovToCoveralls', () => {
     const originalExistsSync = fs.existsSync;
     fs.existsSync = () => true;
 
-    convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
-      fs.readFileSync = originalReadFileSync;
-      fs.existsSync = originalExistsSync;
+    const output = await convertLcovToCoveralls(input, { filepath: libpath });
+    fs.readFileSync = originalReadFileSync;
+    fs.existsSync = originalExistsSync;
 
-      should.not.exist(err);
-      output.source_files[0].name.should.equal(path.posix.join('svgo', 'config.js'));
-      done();
-    });
+    output.source_files[0].name.should.equal(path.posix.join('svgo', 'config.js'));
   });
 
-  it('should handle branch coverage data', done => {
+  it('should handle branch coverage data', async () => {
     process.env.TRAVIS_JOB_ID = -1;
     const lcovpath = path.join(__dirname, './fixtures/istanbul.lcov');
     const input = fs.readFileSync(lcovpath, 'utf8');
@@ -120,17 +103,14 @@ describe('convertLcovToCoveralls', () => {
     const originalExistsSync = fs.existsSync;
     fs.existsSync = () => true;
 
-    convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
-      fs.readFileSync = originalReadFileSync;
-      fs.existsSync = originalExistsSync;
+    const output = await convertLcovToCoveralls(input, { filepath: libpath });
+    fs.readFileSync = originalReadFileSync;
+    fs.existsSync = originalExistsSync;
 
-      should.not.exist(err);
-      output.source_files[0].branches.slice(0, 8).should.eql([18, 1, 0, 85, 18, 1, 1, 2]);
-      done();
-    });
+    output.source_files[0].branches.slice(0, 8).should.eql([18, 1, 0, 85, 18, 1, 1, 2]);
   });
 
-  it('should ignore files that do not exists', done => {
+  it('should ignore files that do not exists', async () => {
     delete process.env.TRAVIS;
     const lcovpath = path.join(__dirname, './fixtures/istanbul.lcov');
     const input = fs.readFileSync(lcovpath, 'utf8');
@@ -149,17 +129,14 @@ describe('convertLcovToCoveralls', () => {
     const originalExistsSync = fs.existsSync;
     fs.existsSync = () => false;
 
-    convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
-      fs.readFileSync = originalReadFileSync;
-      fs.existsSync = originalExistsSync;
+    const output = await convertLcovToCoveralls(input, { filepath: libpath });
+    fs.readFileSync = originalReadFileSync;
+    fs.existsSync = originalExistsSync;
 
-      should.not.exist(err);
-      output.source_files.should.be.empty();
-      done();
-    });
+    output.source_files.should.be.empty();
   });
 
-  it('should parse file paths concatenated by typescript and ng 2', done => {
+  it('should parse file paths concatenated by typescript and ng 2', async () => {
     process.env.TRAVIS_JOB_ID = -1;
     const lcovpath = path.join(__dirname, './fixtures/istanbul.remap.lcov');
     const input = fs.readFileSync(lcovpath, 'utf8');
@@ -178,13 +155,10 @@ describe('convertLcovToCoveralls', () => {
     const originalExistsSync = fs.existsSync;
     fs.existsSync = () => true;
 
-    convertLcovToCoveralls(input, { filepath: libpath }, (err, output) => {
-      fs.readFileSync = originalReadFileSync;
-      fs.existsSync = originalExistsSync;
+    const output = await convertLcovToCoveralls(input, { filepath: libpath });
+    fs.readFileSync = originalReadFileSync;
+    fs.existsSync = originalExistsSync;
 
-      should.not.exist(err);
-      output.source_files[0].name.should.equal(path.posix.join('svgo', 'config.js'));
-      done();
-    });
+    output.source_files[0].name.should.equal(path.posix.join('svgo', 'config.js'));
   });
 });
