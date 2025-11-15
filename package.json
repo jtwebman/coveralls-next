@@ -46,7 +46,7 @@
     "test": "npm run lint && npm run mocha"
   },
   "dependencies": {
-    "js-yaml": "4.1.0",
+    "js-yaml": "4.1.1",
     "lcov-parse": "1.0.0"
   },
   "devDependencies": {
