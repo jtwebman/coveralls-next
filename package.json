@@ -1,7 +1,7 @@
 {
   "name": "coveralls-next",
   "description": "takes json-cov output into stdin and POSTs to coveralls.io",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "keywords": [
     "coverage",
     "coveralls"
