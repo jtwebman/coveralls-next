@@ -33,7 +33,7 @@ jobs:
         run: npm run test-cov
 
       - name: Coveralls
-        if: ${{ secrets.COVERALLS_REPO_TOKEN != '' }}
+        if: github.event.pull_request.head.repo.fork == false || github.event_name == 'push'
         run: cat ./coverage/lcov.info | node ./bin/coveralls.js
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
@@ -46,7 +46,7 @@ jobs:
 
   finish:
     needs: test
-    if: ${{ secrets.COVERALLS_REPO_TOKEN != '' }}
+    if: github.event.pull_request.head.repo.fork == false || github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
